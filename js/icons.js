@@ -27,6 +27,11 @@ const PATHS = {
   coldbrew: '<path d="M7.5 6.5h9l-1 13.5h-7z"/><line x1="14.5" y1="3" x2="12.5" y2="12"/><rect x="9.3" y="9.5" width="3" height="3" transform="rotate(8 9.3 9.5)"/>',
   turkish: '<path d="M6.5 9h8.5v4a4 4 0 0 1-4 4H10.5a4 4 0 0 1-4-4z"/><line x1="15" y1="10.5" x2="21.5" y2="8.5"/><path d="M8.5 9V6.5"/>',
   siphon: '<circle cx="12" cy="6.5" r="3"/><line x1="12" y1="9.5" x2="12" y2="13"/><path d="M7.5 19.5a4.5 4.5 0 0 0 9 0c0-2.2-2-3.5-4.5-3.5s-4.5 1.3-4.5 3.5z"/>',
+  kalita: '<path d="M6 7h12l-2.2 7.5H8.2z"/><line x1="8" y1="9.7" x2="16" y2="9.7"/><line x1="8.6" y1="14.5" x2="15.4" y2="14.5"/><line x1="9.2" y1="17.5" x2="14.8" y2="17.5"/>',
+  clever: '<path d="M6.5 7h11l-1.3 8.5h-8.4z"/><line x1="8" y1="17.5" x2="16" y2="17.5"/><path d="M11 19h2v2h-2z"/><path d="M17.4 9h1.6"/>',
+  phin: '<rect x="8" y="6.5" width="8" height="6" rx="1"/><rect x="9" y="4.3" width="6" height="2.2" rx="1"/><path d="M7 13.5h10l-1 5.5H8z"/>',
+  goteo: '<path d="M8.5 3h7l-1 3.5 1.8 3v8.5a2 2 0 0 1-2 2H9.7a2 2 0 0 1-2-2V9.5l1.8-3z"/><line x1="9.2" y1="13" x2="14.8" y2="13"/>',
+  percolador: '<path d="M7 8.5h10v8a3.5 3.5 0 0 1-3.5 3.5h-3A3.5 3.5 0 0 1 7 16.5z"/><path d="M17 11h2.4"/><circle cx="12" cy="5.4" r="1.4"/><line x1="12" y1="6.8" x2="12" y2="8.5"/>',
 };
 
 export function icon(name, { size = 24, cls = '' } = {}) {

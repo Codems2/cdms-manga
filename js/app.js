@@ -130,8 +130,8 @@ function recipeListEl(recipes) {
         </div>
         <div class="recipe-card__source">${escapeHtml(r.source)}</div>
         <div class="recipe-card__chips">
-          <span class="chip">${icon('bean', { size: 13, cls: 'chip-ico' })}<strong>${r.coffee} g</strong></span>
-          <span class="chip">${icon('droplet', { size: 13, cls: 'chip-ico' })}<strong>${r.water} ${r.methodId === 'espresso' ? 'g' : 'ml'}</strong></span>
+          <span class="chip">${icon('bean', { size: 13, cls: 'chip-ico' })}<strong>${r.coffee ? r.coffee + ' g' : '—'}</strong></span>
+          <span class="chip">${icon('droplet', { size: 13, cls: 'chip-ico' })}<strong>${r.water ? r.water + (r.methodId === 'espresso' ? ' g' : ' ml') : '—'}</strong></span>
           <span class="chip">Ratio <strong>${escapeHtml(r.ratio)}</strong></span>
           <span class="chip">${icon('clock', { size: 13, cls: 'chip-ico' })}<strong>${ratioText(r)}</strong></span>
           <span class="chip">${icon('grind', { size: 13, cls: 'chip-ico' })}<strong>${escapeHtml(getGrindLevel(r.grindLevel).name.toLowerCase())}</strong></span>
@@ -322,10 +322,12 @@ function renderRecipe(recipeId) {
   `));
 
   const waterUnit = r.methodId === 'espresso' ? 'g' : 'ml';
+  const coffeeStr = r.coffee ? `${r.coffee} g` : '—';
+  const waterStr = r.water ? `${r.water} ${waterUnit}` : '—';
   container.appendChild(el(`
     <div class="specs">
-      <div class="spec"><div class="spec__val">${r.coffee} g</div><div class="spec__label">Café</div></div>
-      <div class="spec"><div class="spec__val">${r.water} ${waterUnit}</div><div class="spec__label">Agua</div></div>
+      <div class="spec"><div class="spec__val">${coffeeStr}</div><div class="spec__label">Café</div></div>
+      <div class="spec"><div class="spec__val">${waterStr}</div><div class="spec__label">Agua</div></div>
       <div class="spec"><div class="spec__val">${escapeHtml(r.ratio)}</div><div class="spec__label">Ratio</div></div>
     </div>
   `));

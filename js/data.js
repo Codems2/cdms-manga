@@ -65,6 +65,41 @@ export const METHODS = [
       'Cafetera de vacío que combina inmersión y filtrado mediante presión de ' +
       'vapor. Taza limpia, aromática y delicada. Requiere algo de práctica.',
   },
+  {
+    id: 'kalita', name: 'Kalita Wave', icon: 'kalita', type: 'Filtrado',
+    tagline: 'Filtrado uniforme y constante',
+    description:
+      'Goteador de fondo plano con tres orificios y filtro ondulado. Más ' +
+      'tolerante que el V60: flujo estable y resultados muy repetibles.',
+  },
+  {
+    id: 'clever', name: 'Clever Dripper', icon: 'clever', type: 'Inmersión / Filtrado',
+    tagline: 'Inmersión y filtrado en uno',
+    description:
+      'Goteador con válvula: infusiona por inmersión y, al apoyarlo sobre la ' +
+      'taza, libera el café filtrado. Fácil, limpio y muy indulgente.',
+  },
+  {
+    id: 'phin', name: 'Phin vietnamita', icon: 'phin', type: 'Goteo lento',
+    tagline: 'Café vietnamita intenso',
+    description:
+      'Filtro metálico individual que gotea lento sobre la taza. Clásico con ' +
+      'leche condensada, caliente o helado (cà phê sữa đá).',
+  },
+  {
+    id: 'goteo', name: 'Cafetera de goteo', icon: 'goteo', type: 'Filtrado (eléctrica)',
+    tagline: 'Cómoda y para varias tazas',
+    description:
+      'La cafetera eléctrica de filtro de toda la vida. Cómoda para varias ' +
+      'tazas; la clave está en la dosis y usar café recién molido.',
+  },
+  {
+    id: 'percolador', name: 'Percoladora', icon: 'percolador', type: 'Recirculación',
+    tagline: 'Café fuerte de camping',
+    description:
+      'El agua hirviendo recircula a través del café una y otra vez. Café ' +
+      'fuerte y con cuerpo, clásico de campamento. Cuidado con sobreextraer.',
+  },
 ];
 
 // Escala de molienda (1 = más fino, 6 = más grueso).
@@ -579,6 +614,551 @@ export const RECIPES = [
       s(195, 'Sirve', 'Sirve en cuanto termine.'),
     ],
     notes: 'Remueve con delicadeza: una agitación excesiva sobreextrae rápido en el sifón.',
+  },
+
+  /* ===================== V60 (más) ===================== */
+  {
+    id: 'v60-doble', methodId: 'v60', title: 'V60 doble (2 tazas)',
+    source: 'Escalado de la receta de referencia', coffee: 30, water: 500, ratio: '1:16,6',
+    grind: 'Media-fina', grindLevel: 3, temp: 95, totalTime: 240, difficulty: 'Media',
+    summary: 'La misma técnica equilibrada para dos tazas. Usa un V60 del 02 y vierte sin prisa.',
+    steps: [
+      s(0, 'Floración', 'Vierte 60 g y agita para mojar todo el café.'),
+      s(45, 'Vertido 1', 'Hasta 300 g de agua total.'),
+      s(80, 'Vertido 2', 'Hasta 500 g total.'),
+      s(110, 'Agita', 'Remolino suave para nivelar el lecho.'),
+      s(135, 'Drenado', 'Termina sobre 3:30–4:00.'),
+    ],
+    notes: 'Con más volumen el drenado tarda algo más; ajusta la molienda si hace falta.',
+  },
+  {
+    id: 'v60-fuerte', methodId: 'v60', title: 'V60 con más fuerza',
+    source: 'Ratio más cargado', coffee: 18, water: 250, ratio: '1:14',
+    grind: 'Media-fina', grindLevel: 3, temp: 94, totalTime: 210, difficulty: 'Media',
+    summary: 'Más café para una taza con más cuerpo e intensidad, sin perder claridad.',
+    steps: [
+      s(0, 'Floración', 'Vierte 45 g y agita.'),
+      s(45, 'Vertido 1', 'Hasta 150 g total.'),
+      s(75, 'Vertido 2', 'Hasta 250 g total y agita.'),
+      s(105, 'Drenado', 'Termina sobre 3:00–3:30.'),
+    ],
+    notes: 'Si amarga, muele un punto más grueso o baja la temperatura.',
+  },
+  {
+    id: 'v60-suave', methodId: 'v60', title: 'V60 suave para el día a día',
+    source: 'Ratio ligero', coffee: 15, water: 270, ratio: '1:18',
+    grind: 'Media', grindLevel: 4, temp: 92, totalTime: 200, difficulty: 'Fácil',
+    summary: 'Taza ligera y fácil de beber, ideal para tuestes medios y para beber en cantidad.',
+    steps: [
+      s(0, 'Floración', 'Vierte 45 g y espera.'),
+      s(45, 'Vertido único', 'Vierte hasta 270 g de forma continua.'),
+      s(100, 'Drenado', 'Deja filtrar hasta ~3:00.'),
+    ],
+    notes: 'Molienda algo más gruesa para que no se sobreextraiga al ser tan diluido.',
+  },
+
+  /* ===================== AeroPress (más) ===================== */
+  {
+    id: 'aeropress-suave', methodId: 'aeropress', title: 'AeroPress tipo filtrado',
+    source: 'Estilo filtrado largo', coffee: 14, water: 230, ratio: '1:16',
+    grind: 'Media', grindLevel: 4, temp: 82, totalTime: 120, difficulty: 'Fácil',
+    summary: 'Más diluida y delicada, parecida a un filtrado. Agua templada y presión muy suave.',
+    steps: [
+      s(0, 'Café y agua', '14 g de café + 230 g de agua a 82 °C.'),
+      s(15, 'Remueve', 'Da unas vueltas y coloca el émbolo.'),
+      s(75, 'Presiona lento', 'Presiona muy suave durante ~40 s.'),
+    ],
+    notes: 'La presión suave evita el amargor en una receta tan diluida.',
+  },
+  {
+    id: 'aeropress-doble', methodId: 'aeropress', title: 'AeroPress doble (2 tazas)',
+    source: 'Versión para compartir', coffee: 28, water: 420, ratio: '1:15',
+    grind: 'Media-fina', grindLevel: 3, temp: 88, totalTime: 180, difficulty: 'Media',
+    summary: 'Concentrado en la AeroPress y dilución final para llenar dos tazas.',
+    steps: [
+      s(0, 'Café y agua', '28 g de café + 200 g de agua a 88 °C. Remueve.'),
+      s(30, 'Infusión', 'Espera mientras infusiona.'),
+      s(90, 'Presiona', 'Presiona durante ~30 s.'),
+      s(130, 'Diluye', 'Añade 220 g de agua caliente y reparte en dos tazas.'),
+    ],
+    notes: 'Hazlo en posición invertida para evitar el goteo durante la infusión.',
+  },
+  {
+    id: 'aeropress-overnight', methodId: 'aeropress', title: 'AeroPress fría de un día para otro',
+    source: 'Cold brew exprés en AeroPress', coffee: 18, water: 220, ratio: '1:12',
+    grind: 'Media', grindLevel: 4, temp: 20, totalTime: 28800, difficulty: 'Fácil',
+    summary: 'Inmersión en frío toda la noche y prensado por la mañana: suave, dulce y sin acidez.',
+    steps: [
+      s(0, 'Monta invertida', 'AeroPress invertida con 18 g de café y 220 g de agua fría.'),
+      s(30, 'A la nevera', 'Tapa con el filtro y deja en la nevera 8 h.'),
+      s(120, 'Voltea y presiona', 'Voltea sobre el vaso y presiona suave.'),
+    ],
+    notes: 'Sirve sobre hielo. El temporizador aquí es simbólico (el reposo son horas).',
+  },
+
+  /* ===================== Prensa francesa (más) ===================== */
+  {
+    id: 'prensa-coldbrew', methodId: 'prensa', title: 'Cold brew en prensa francesa',
+    source: 'Inmersión en frío', coffee: 60, water: 600, ratio: '1:10',
+    grind: 'Gruesa', grindLevel: 6, temp: 20, totalTime: 43200, difficulty: 'Fácil',
+    summary: 'La prensa es perfecta para cold brew: infusiona en frío y filtra con el émbolo.',
+    steps: [
+      s(0, 'Mezcla', '60 g de café grueso + 600 g de agua fría. Remueve.'),
+      s(60, 'Reposo', 'Tapa (sin prensar) y deja en la nevera 12 h.'),
+      s(120, 'Prensa', 'Baja el émbolo y sirve sobre hielo.'),
+    ],
+    notes: 'Pasa el café a otro recipiente tras prensar para que no siga extrayendo.',
+  },
+  {
+    id: 'prensa-batch', methodId: 'prensa', title: 'Prensa grande (1 litro)',
+    source: 'Para grupo', coffee: 60, water: 1000, ratio: '1:16,6',
+    grind: 'Gruesa', grindLevel: 6, temp: 95, totalTime: 270, difficulty: 'Fácil',
+    summary: 'Cafetera de 1 L para varias personas con la técnica limpia de romper y retirar la costra.',
+    steps: [
+      s(0, 'Añade agua', '1000 g de agua sobre 60 g de café.'),
+      s(240, 'Rompe la costra', 'Remueve y retira la espuma.'),
+      s(330, 'Espera', 'Deja asentar los finos.'),
+      s(450, 'Prensa y sirve', 'Baja el émbolo suave y sirve.'),
+    ],
+    notes: 'Ideal para desayunos en grupo; sirve en cuanto esté para no sobreextraer.',
+  },
+
+  /* ===================== Chemex (más) ===================== */
+  {
+    id: 'chemex-batch', methodId: 'chemex', title: 'Chemex grande (6 tazas)',
+    source: 'Para grupo', coffee: 60, water: 1000, ratio: '1:16,6',
+    grind: 'Media-gruesa', grindLevel: 5, temp: 94, totalTime: 360, difficulty: 'Media',
+    summary: 'La Chemex de 8 tazas a su máxima capacidad. Vierte por tandas y ten paciencia.',
+    steps: [
+      s(0, 'Floración', 'Vierte 120 g y espera 45 s.'),
+      s(45, 'Vertido 1', 'Hasta 500 g total.'),
+      s(150, 'Vertido 2', 'Hasta 1000 g total, manteniendo el nivel.'),
+      s(280, 'Drenado', 'Termina sobre 5:30–6:00 y retira el filtro.'),
+    ],
+    notes: 'El filtro grueso drena lento con este volumen; no muelas demasiado fino.',
+  },
+  {
+    id: 'chemex-iced', methodId: 'chemex', title: 'Chemex helada',
+    source: 'Filtrado sobre hielo', coffee: 30, water: 300, ratio: '1:15 (con hielo)',
+    grind: 'Media', grindLevel: 4, temp: 94, totalTime: 240, difficulty: 'Media',
+    summary: 'Filtra caliente sobre hielo dentro de la propia jarra: limpia y muy refrescante.',
+    steps: [
+      s(0, 'Hielo en la jarra', 'Pon ~150 g de hielo en la Chemex.'),
+      s(5, 'Floración', 'Vierte 60 g de agua caliente.'),
+      s(45, 'Vertidos', 'Vierte hasta 300 g de agua caliente total.'),
+      s(150, 'Remueve y sirve', 'Agita para fundir el hielo y sirve sobre hielo nuevo.'),
+    ],
+    notes: 'Muele un punto más fino que en caliente para compensar la dilución.',
+  },
+
+  /* ===================== Moka (más) ===================== */
+  {
+    id: 'moka-grande', methodId: 'moka', title: 'Moka grande (6 tazas)',
+    source: 'Cafetera de 6 tazas', coffee: 30, water: 300, ratio: '—',
+    grind: 'Media-fina', grindLevel: 3, temp: 100, totalTime: 360, difficulty: 'Fácil',
+    summary: 'Para la moka de 6 tazas. Misma técnica: agua caliente y retirar a tiempo.',
+    steps: [
+      s(0, 'Agua caliente', 'Base con agua caliente hasta la válvula.'),
+      s(25, 'Café', 'Llena el embudo sin presionar.'),
+      s(45, 'Al fuego', 'Fuego medio-bajo con la tapa abierta.'),
+      s(240, 'Vigila', 'Al empezar el gorgoteo, baja el fuego.'),
+      s(300, 'Retira', 'Aparta y enfría la base bajo el grifo.'),
+    ],
+    notes: 'A más volumen, fuego algo más alto al principio; bájalo al salir el café.',
+  },
+  {
+    id: 'moka-bombon', methodId: 'moka', title: 'Café bombón con moka',
+    source: 'Especialidad española', coffee: 17, water: 150, ratio: '— (+ leche condensada)',
+    grind: 'Media-fina', grindLevel: 3, temp: 100, totalTime: 330, difficulty: 'Fácil',
+    summary: 'Café intenso sobre una capa de leche condensada, en vaso transparente para ver las dos capas.',
+    steps: [
+      s(0, 'Leche condensada', 'Pon 2–3 cucharadas de leche condensada en un vaso de cristal.'),
+      s(30, 'Prepara la moka', 'Haz el café siguiendo la receta clásica.'),
+      s(300, 'Vierte despacio', 'Añade el café lentamente para crear dos capas. Remueve antes de beber.'),
+    ],
+    notes: 'Un vaso pequeño realza el efecto visual de las dos capas.',
+  },
+  {
+    id: 'moka-iced', methodId: 'moka', title: 'Moka helada',
+    source: 'Café de fogón sobre hielo', coffee: 17, water: 150, ratio: '— (+ hielo)',
+    grind: 'Media-fina', grindLevel: 3, temp: 100, totalTime: 360, difficulty: 'Fácil',
+    summary: 'El cuerpo de la moka enfriado de golpe sobre hielo. Endúlzalo en caliente si quieres.',
+    steps: [
+      s(0, 'Prepara la moka', 'Haz el café clásico (añade azúcar en caliente si te gusta).'),
+      s(300, 'Vaso con hielo', 'Llena un vaso con hielo abundante.'),
+      s(330, 'Vierte y remueve', 'Vierte el café sobre el hielo y remueve. Completa con leche fría si quieres.'),
+    ],
+    notes: 'Enfriar rápido conserva mejor el aroma que dejarlo entibiar.',
+  },
+
+  /* ===================== Espresso (más) ===================== */
+  {
+    id: 'espresso-cortado', methodId: 'espresso', title: 'Cortado',
+    source: 'Espresso + un toque de leche', coffee: 18, water: 36, ratio: '1:2 (+ leche)',
+    grind: 'Fina', grindLevel: 2, temp: 93, totalTime: 60, difficulty: 'Media',
+    summary: 'Espresso "cortado" con una pequeña cantidad de leche caliente (~30–60 ml). Intenso pero suavizado.',
+    steps: [
+      s(0, 'Espresso doble', 'Extrae 36 g de espresso en un vaso pequeño.'),
+      s(30, 'Leche', 'Añade 30–60 g de leche caliente con poca espuma.'),
+      s(50, 'Sirve', 'La proporción aprox. es 1:1 entre café y leche.'),
+    ],
+    notes: 'Más leche que un macchiato pero mucha menos que un cortado catalán o un latte.',
+  },
+  {
+    id: 'espresso-flatwhite', methodId: 'espresso', title: 'Flat white',
+    source: 'Estilo antípoda', coffee: 18, water: 27, ratio: '1:1,5 (+ leche)',
+    grind: 'Fina', grindLevel: 2, temp: 93, totalTime: 90, difficulty: 'Alta',
+    summary: 'Base de ristretto doble y leche con microespuma muy fina (~120 ml). Cremoso e intenso.',
+    steps: [
+      s(0, 'Ristretto doble', 'Extrae ~27 g de espresso (corto e intenso).'),
+      s(30, 'Microespuma', 'Textura ~120 g de leche con espuma muy fina y sedosa.'),
+      s(70, 'Vierte', 'Integra la leche dejando apenas 0,5 cm de espuma.'),
+    ],
+    notes: 'La clave es la microespuma fina, no una capa gruesa como el cappuccino.',
+  },
+  {
+    id: 'espresso-macchiato', methodId: 'espresso', title: 'Espresso macchiato',
+    source: 'Espresso "manchado"', coffee: 18, water: 36, ratio: '1:2 (+ espuma)',
+    grind: 'Fina', grindLevel: 2, temp: 93, totalTime: 60, difficulty: 'Media',
+    summary: 'Un espresso con solo una cucharada de espuma de leche encima. Casi todo café.',
+    steps: [
+      s(0, 'Espresso doble', 'Extrae 36 g de espresso.'),
+      s(30, 'Mancha de espuma', 'Añade 1–2 cucharadas de microespuma de leche.'),
+    ],
+    notes: 'No confundir con el latte macchiato, que es prácticamente lo contrario.',
+  },
+  {
+    id: 'espresso-lattemacchiato', methodId: 'espresso', title: 'Latte macchiato',
+    source: 'Leche "manchada" de café', coffee: 18, water: 36, ratio: '1:2 (+ mucha leche)',
+    grind: 'Fina', grindLevel: 2, temp: 93, totalTime: 90, difficulty: 'Alta',
+    summary: 'Vaso de leche texturizada (~220 ml) "manchado" vertiendo el espresso por encima. Bonitas capas.',
+    steps: [
+      s(0, 'Leche en el vaso', 'Vierte ~220 g de leche texturizada en un vaso alto.'),
+      s(40, 'Espresso encima', 'Extrae 36 g de espresso y viértelo despacio sobre la leche.'),
+      s(70, 'Capas', 'El café se asienta en una capa intermedia. Sirve sin remover.'),
+    ],
+    notes: 'Al revés que el cappuccino: aquí la leche es la base y el café se añade después.',
+  },
+  {
+    id: 'espresso-mocha', methodId: 'espresso', title: 'Mocha (café con chocolate)',
+    source: 'Espresso + chocolate + leche', coffee: 18, water: 36, ratio: '1:2 (+ choco y leche)',
+    grind: 'Fina', grindLevel: 2, temp: 93, totalTime: 120, difficulty: 'Media',
+    summary: 'Espresso con chocolate y leche texturizada. Goloso y reconfortante.',
+    steps: [
+      s(0, 'Chocolate', 'Pon 1–2 cucharadas de cacao o salsa de chocolate en la taza.'),
+      s(20, 'Espresso doble', 'Extrae 36 g de espresso y mezcla con el chocolate.'),
+      s(50, 'Leche', 'Añade ~180 g de leche texturizada y remueve.'),
+    ],
+    notes: 'Remata con un poco de cacao en polvo o nata si te apetece.',
+  },
+  {
+    id: 'espresso-affogato', methodId: 'espresso', title: 'Affogato',
+    source: 'Postre italiano', coffee: 18, water: 36, ratio: '1:2 (+ helado)',
+    grind: 'Fina', grindLevel: 2, temp: 93, totalTime: 60, difficulty: 'Fácil',
+    summary: 'Una bola de helado de vainilla "ahogada" en un espresso caliente. Postre y café a la vez.',
+    steps: [
+      s(0, 'Helado', 'Pon una bola de helado de vainilla en una copa.'),
+      s(20, 'Espresso doble', 'Extrae 36 g de espresso bien caliente.'),
+      s(40, 'Vierte y sirve', 'Vierte el espresso sobre el helado y sirve de inmediato.'),
+    ],
+    notes: 'Sirve al momento, antes de que el helado se derrita del todo.',
+  },
+  {
+    id: 'espresso-tonic', methodId: 'espresso', title: 'Espresso tonic',
+    source: 'Espresso + tónica', coffee: 18, water: 36, ratio: '1:2 (+ tónica)',
+    grind: 'Fina', grindLevel: 2, temp: 93, totalTime: 90, difficulty: 'Fácil',
+    summary: 'Refrescante y burbujeante: tónica fría con hielo y un espresso por encima. Cítrico y vibrante.',
+    steps: [
+      s(0, 'Vaso con hielo', 'Llena un vaso con hielo.'),
+      s(10, 'Tónica', 'Añade ~120 g de agua tónica fría.'),
+      s(40, 'Espresso', 'Extrae 36 g de espresso y viértelo despacio sobre la tónica.'),
+    ],
+    notes: 'Un espresso de tueste claro y frutal combina genial. Opcional: una rodaja de limón o naranja.',
+  },
+  {
+    id: 'espresso-conpanna', methodId: 'espresso', title: 'Espresso con panna',
+    source: 'Espresso + nata montada', coffee: 18, water: 36, ratio: '1:2 (+ nata)',
+    grind: 'Fina', grindLevel: 2, temp: 93, totalTime: 60, difficulty: 'Fácil',
+    summary: 'Un espresso coronado con una cucharada de nata montada. Sencillo y goloso.',
+    steps: [
+      s(0, 'Espresso doble', 'Extrae 36 g de espresso en una taza.'),
+      s(30, 'Nata', 'Corona con una cucharada de nata montada.'),
+    ],
+    notes: 'Puedes espolvorear cacao o canela por encima.',
+  },
+  {
+    id: 'espresso-carajillo', methodId: 'espresso', title: 'Carajillo',
+    source: 'Espresso con licor', coffee: 18, water: 36, ratio: '1:2 (+ licor)',
+    grind: 'Fina', grindLevel: 2, temp: 93, totalTime: 60, difficulty: 'Fácil',
+    summary: 'Espresso con un chorrito de licor (brandy, ron o whisky). Clásico de sobremesa (solo para adultos).',
+    steps: [
+      s(0, 'Licor', 'Pon ~20 ml del licor elegido en el vaso (puedes flamearlo con azúcar).'),
+      s(20, 'Espresso doble', 'Extrae 36 g de espresso y añádelo al licor.'),
+    ],
+    notes: 'Consúmelo con moderación. Variante fría: con hielo.',
+  },
+  {
+    id: 'espresso-bombon', methodId: 'espresso', title: 'Café bombón (espresso)',
+    source: 'Espresso + leche condensada', coffee: 18, water: 36, ratio: '1:2 (+ leche condensada)',
+    grind: 'Fina', grindLevel: 2, temp: 93, totalTime: 60, difficulty: 'Fácil',
+    summary: 'Capa de leche condensada y espresso encima, en vaso de cristal para lucir las dos capas.',
+    steps: [
+      s(0, 'Leche condensada', 'Pon una capa de leche condensada en un vaso pequeño.'),
+      s(20, 'Espresso doble', 'Extrae 36 g de espresso.'),
+      s(40, 'Vierte despacio', 'Añade el café lentamente para mantener las capas. Remueve antes de beber.'),
+    ],
+    notes: 'Versión exprés del bombón de moka, con la intensidad del espresso.',
+  },
+
+  /* ===================== Cold brew (más) ===================== */
+  {
+    id: 'coldbrew-tonic', methodId: 'coldbrew', title: 'Cold brew tonic',
+    source: 'Concentrado + tónica', coffee: 0, water: 0, ratio: 'al gusto',
+    grind: 'Gruesa', grindLevel: 6, temp: 20, totalTime: 120, difficulty: 'Fácil',
+    summary: 'Refrescante: tónica con hielo y un chorro de concentrado de cold brew por encima.',
+    steps: [
+      s(0, 'Vaso con hielo', 'Llena un vaso con hielo.'),
+      s(10, 'Tónica', 'Añade ~150 g de agua tónica fría.'),
+      s(40, 'Cold brew', 'Vierte 40–60 g de concentrado de cold brew sobre la tónica.'),
+    ],
+    notes: 'Usa el "Concentrado fuerte (1:5)" como base. Opcional: cítrico para decorar.',
+  },
+  {
+    id: 'coldbrew-latte', methodId: 'coldbrew', title: 'Cold brew latte',
+    source: 'Concentrado + leche fría', coffee: 0, water: 0, ratio: '1:1',
+    grind: 'Gruesa', grindLevel: 6, temp: 20, totalTime: 120, difficulty: 'Fácil',
+    summary: 'Concentrado de cold brew con leche fría sobre hielo. Cremoso y suave.',
+    steps: [
+      s(0, 'Vaso con hielo', 'Llena un vaso con hielo.'),
+      s(10, 'Concentrado', 'Añade ~100 g de concentrado de cold brew.'),
+      s(40, 'Leche', 'Completa con ~100 g de leche fría (o bebida vegetal) y remueve.'),
+    ],
+    notes: 'Endúlzalo con sirope si quieres; el frío "esconde" el dulzor, así que prueba.',
+  },
+  {
+    id: 'coldbrew-batch', methodId: 'coldbrew', title: 'Cold brew grande (1,5 L)',
+    source: 'Inmersión en frío para varios días', coffee: 150, water: 1500, ratio: '1:10',
+    grind: 'Gruesa', grindLevel: 6, temp: 20, totalTime: 64800, difficulty: 'Fácil',
+    summary: 'Una jarra grande que dura toda la semana. Mismo método de inmersión, más cantidad.',
+    steps: [
+      s(0, 'Mezcla', '150 g de café grueso + 1,5 L de agua. Remueve bien.'),
+      s(60, 'Reposo', 'Nevera 16–18 horas.'),
+      s(120, 'Filtra', 'Cuela con filtro de papel o tela.'),
+      s(180, 'Guarda', 'Conserva en botella tapada; diluye al servir.'),
+    ],
+    notes: 'Se conserva hasta una semana en nevera bien tapado.',
+  },
+  {
+    id: 'coldbrew-especiado', methodId: 'coldbrew', title: 'Cold brew especiado',
+    source: 'Inmersión en frío aromatizada', coffee: 100, water: 1000, ratio: '1:10',
+    grind: 'Gruesa', grindLevel: 6, temp: 20, totalTime: 57600, difficulty: 'Fácil',
+    summary: 'Cold brew con canela y vainilla añadidas a la infusión. Aromático y reconfortante en frío.',
+    steps: [
+      s(0, 'Mezcla', '100 g de café + 1 L de agua + 1 rama de canela y unas gotas de vainilla.'),
+      s(60, 'Reposo', 'Nevera 14–18 horas.'),
+      s(120, 'Filtra', 'Retira las especias y cuela el café.'),
+      s(180, 'Sirve', 'Diluye al gusto y sirve sobre hielo.'),
+    ],
+    notes: 'Prueba también con cardamomo o piel de naranja en la infusión.',
+  },
+
+  /* ===================== Café turco (más) ===================== */
+  {
+    id: 'turco-cardamomo', methodId: 'turco', title: 'Turco con cardamomo',
+    source: 'Estilo de Oriente Medio', coffee: 7, water: 70, ratio: '1:10',
+    grind: 'Extra fina', grindLevel: 1, temp: 90, totalTime: 240, difficulty: 'Media',
+    summary: 'Café turco aromatizado con cardamomo molido, muy típico en Oriente Medio.',
+    steps: [
+      s(0, 'Mezcla en frío', 'En el cezve: 70 g de agua fría, 7 g de café extra fino, una pizca de cardamomo (y azúcar al gusto).'),
+      s(20, 'Fuego muy bajo', 'Calienta despacio sin remover.'),
+      s(150, 'Espuma', 'Al subir la espuma, retira antes de hervir.'),
+      s(180, 'Sirve', 'Reparte la espuma y sirve; deja asentar los posos.'),
+    ],
+    notes: 'Una vaina de cardamomo machacada en lugar del molido da un aroma más limpio.',
+  },
+
+  /* ===================== Sifón (más) ===================== */
+  {
+    id: 'sifon-batch', methodId: 'sifon', title: 'Sifón para tres',
+    source: 'Cafetera de vacío grande', coffee: 30, water: 450, ratio: '1:15',
+    grind: 'Media', grindLevel: 4, temp: 92, totalTime: 260, difficulty: 'Alta',
+    summary: 'El sifón a mayor escala para tres tazas, controlando bien el tiempo de contacto.',
+    steps: [
+      s(0, 'Agua caliente', '450 g de agua caliente en el bulbo inferior y enciende el calor.'),
+      s(70, 'Café', 'Al subir el agua, añade 30 g de café y remueve.'),
+      s(90, 'Infusión', 'Infusiona ~60 s.'),
+      s(160, 'Retira el calor', 'Apaga y deja que baje filtrado.'),
+      s(230, 'Sirve', 'Sirve en cuanto termine de bajar.'),
+    ],
+    notes: 'Con más volumen, vigila que la fuente de calor sea suficiente para mantener el agua arriba.',
+  },
+
+  /* ===================== Kalita Wave ===================== */
+  {
+    id: 'kalita-clasica', methodId: 'kalita', title: 'Kalita Wave clásica',
+    source: 'Técnica de fondo plano', coffee: 20, water: 320, ratio: '1:16',
+    grind: 'Media-fina', grindLevel: 3, temp: 93, totalTime: 210, difficulty: 'Media',
+    summary: 'Vertidos pequeños y frecuentes manteniendo el nivel. El fondo plano da una extracción muy uniforme.',
+    steps: [
+      s(0, 'Floración', 'Vierte 50 g y espera a que se hinche.'),
+      s(45, 'Vertido 1', 'Hasta 150 g, en círculos pequeños.'),
+      s(80, 'Vertido 2', 'Hasta 230 g.'),
+      s(115, 'Vertido 3', 'Hasta 320 g.'),
+      s(150, 'Drenado', 'Termina sobre 3:00–3:30.'),
+    ],
+    notes: 'Mantén un nivel de agua constante; evita verter sobre las paredes del filtro.',
+  },
+  {
+    id: 'kalita-doble', methodId: 'kalita', title: 'Kalita doble (2 tazas)',
+    source: 'Escalado', coffee: 28, water: 450, ratio: '1:16',
+    grind: 'Media-fina', grindLevel: 3, temp: 93, totalTime: 240, difficulty: 'Media',
+    summary: 'La misma técnica de vertidos por tandas para dos tazas, con el Kalita 185.',
+    steps: [
+      s(0, 'Floración', 'Vierte 60 g y espera.'),
+      s(45, 'Vertido 1', 'Hasta 200 g.'),
+      s(85, 'Vertido 2', 'Hasta 330 g.'),
+      s(125, 'Vertido 3', 'Hasta 450 g.'),
+      s(165, 'Drenado', 'Termina sobre 3:30–4:00.'),
+    ],
+    notes: 'Si drena demasiado lento, sube un punto la molienda.',
+  },
+  {
+    id: 'kalita-iced', methodId: 'kalita', title: 'Kalita helada',
+    source: 'Filtrado sobre hielo', coffee: 22, water: 200, ratio: '1:16 (con hielo)',
+    grind: 'Media-fina', grindLevel: 3, temp: 93, totalTime: 180, difficulty: 'Media',
+    summary: 'Filtra caliente sobre hielo. El fondo plano del Kalita facilita un goteo estable.',
+    steps: [
+      s(0, 'Hielo en la jarra', 'Pon ~130 g de hielo bajo el Kalita.'),
+      s(5, 'Floración', 'Vierte 50 g de agua caliente.'),
+      s(45, 'Vertidos', 'Vierte hasta 200 g de agua caliente total en 2 tandas.'),
+      s(120, 'Remueve y sirve', 'Funde el hielo restante y sirve sobre hielo nuevo.'),
+    ],
+    notes: 'Muele un punto más fino que en caliente para compensar el menor tiempo.',
+  },
+
+  /* ===================== Clever Dripper ===================== */
+  {
+    id: 'clever-clasica', methodId: 'clever', title: 'Clever clásica',
+    source: 'Inmersión + filtrado', coffee: 18, water: 300, ratio: '1:16,6',
+    grind: 'Media', grindLevel: 4, temp: 92, totalTime: 180, difficulty: 'Fácil',
+    summary: 'Inmersión total y, al apoyarla en la taza, libera el café filtrado. Casi imposible fallar.',
+    steps: [
+      s(0, 'Café y agua', 'Filtro enjuagado, 18 g de café y 300 g de agua. Remueve.'),
+      s(20, 'Tapa', 'Coloca la tapa y deja infusionar.'),
+      s(150, 'Libera', 'Apoya la Clever sobre la taza: el café empezará a filtrar.'),
+      s(170, 'Sirve', 'Espera a que termine de drenar y sirve.'),
+    ],
+    notes: 'Más tiempo de inmersión = taza más fuerte. Empieza por 2:30 totales.',
+  },
+  {
+    id: 'clever-fuerte', methodId: 'clever', title: 'Clever con cuerpo',
+    source: 'Ratio cargado', coffee: 22, water: 300, ratio: '1:13,6',
+    grind: 'Media', grindLevel: 4, temp: 92, totalTime: 210, difficulty: 'Fácil',
+    summary: 'Más café e infusión algo más larga para una taza intensa y con cuerpo.',
+    steps: [
+      s(0, 'Café y agua', '22 g de café + 300 g de agua. Remueve.'),
+      s(20, 'Infusión larga', 'Tapa y deja infusionar ~3 min.'),
+      s(180, 'Libera y sirve', 'Apoya sobre la taza y deja drenar.'),
+    ],
+    notes: 'Si amarga, reduce la infusión o muele más grueso.',
+  },
+  {
+    id: 'clever-clara', methodId: 'clever', title: 'Clever ligera y limpia',
+    source: 'Estilo delicado', coffee: 15, water: 250, ratio: '1:16,6',
+    grind: 'Media-gruesa', grindLevel: 5, temp: 90, totalTime: 150, difficulty: 'Fácil',
+    summary: 'Infusión corta y molienda más gruesa para una taza ligera y muy limpia.',
+    steps: [
+      s(0, 'Café y agua', '15 g de café + 250 g de agua. Remueve suave.'),
+      s(20, 'Infusión corta', 'Tapa y deja solo ~1:30.'),
+      s(110, 'Libera y sirve', 'Apoya sobre la taza y deja filtrar.'),
+    ],
+    notes: 'Ideal para tuestes claros que quieras disfrutar suaves.',
+  },
+
+  /* ===================== Phin vietnamita ===================== */
+  {
+    id: 'phin-sua-nong', methodId: 'phin', title: 'Cà phê sữa nóng (caliente)',
+    source: 'Café vietnamita tradicional', coffee: 25, water: 120, ratio: '1:5 aprox.',
+    grind: 'Media-fina', grindLevel: 3, temp: 92, totalTime: 300, difficulty: 'Media',
+    summary: 'Café fuerte que gotea lento sobre una capa de leche condensada. Dulce, denso e intenso.',
+    steps: [
+      s(0, 'Leche condensada', 'Pon 2–3 cucharadas de leche condensada en el vaso.'),
+      s(15, 'Carga el phin', 'Coloca el phin encima, añade 25 g de café y asienta el filtro-prensa.'),
+      s(30, 'Humedece', 'Vierte un poco de agua caliente para "florecer" el café (~30 s).'),
+      s(60, 'Llena', 'Completa hasta ~120 g de agua y tapa.'),
+      s(280, 'Remueve', 'Cuando termine de gotear, retira el phin y remueve la leche.'),
+    ],
+    notes: 'El goteo debe ser lento (3–5 min). Si va muy rápido, presiona algo más el filtro.',
+  },
+  {
+    id: 'phin-sua-da', methodId: 'phin', title: 'Cà phê sữa đá (helado)',
+    source: 'Café vietnamita helado', coffee: 25, water: 120, ratio: '1:5 aprox. (+ hielo)',
+    grind: 'Media-fina', grindLevel: 3, temp: 92, totalTime: 330, difficulty: 'Media',
+    summary: 'La versión helada e icónica: café con leche condensada vertido sobre hielo abundante.',
+    steps: [
+      s(0, 'Leche condensada', 'Pon 2–3 cucharadas de leche condensada en el vaso.'),
+      s(15, 'Prepara el phin', 'Café en el phin, humedece y completa hasta ~120 g de agua. Tapa.'),
+      s(280, 'Remueve', 'Al terminar de gotear, retira el phin y remueve bien.'),
+      s(300, 'Hielo', 'Añade hielo abundante o vierte sobre un vaso lleno de hielo.'),
+    ],
+    notes: 'Usa café robusta de tueste oscuro para el sabor vietnamita auténtico.',
+  },
+
+  /* ===================== Cafetera de goteo ===================== */
+  {
+    id: 'goteo-clasica', methodId: 'goteo', title: 'Goteo eléctrica (jarra)',
+    source: 'Cafetera de filtro doméstica', coffee: 30, water: 500, ratio: '1:16,6',
+    grind: 'Media', grindLevel: 4, temp: 94, totalTime: 300, difficulty: 'Fácil',
+    summary: 'La cómoda cafetera de filtro: pesa el café, usa agua filtrada y muele justo antes. Para ~3–4 tazas.',
+    steps: [
+      s(0, 'Filtro y café', 'Coloca el filtro (enjuágalo si es de papel) y 30 g de café molido medio.'),
+      s(20, 'Agua', 'Añade 500 g de agua filtrada al depósito.'),
+      s(40, 'Enciende', 'Pon en marcha; el agua goteará sobre el café.'),
+      s(290, 'Sirve', 'Sirve al terminar; retira la jarra de la placa para que no se "queme".'),
+    ],
+    notes: 'El error más común es café molido demasiado antes y dosis "a ojo". Pésalo.',
+  },
+  {
+    id: 'goteo-batch', methodId: 'goteo', title: 'Goteo grande (jarra llena)',
+    source: 'Para grupo', coffee: 60, water: 1000, ratio: '1:16,6',
+    grind: 'Media', grindLevel: 4, temp: 94, totalTime: 420, difficulty: 'Fácil',
+    summary: 'La jarra completa para varias personas, manteniendo el ratio para que no salga aguado.',
+    steps: [
+      s(0, 'Filtro y café', 'Filtro enjuagado y 60 g de café medio.'),
+      s(20, 'Agua', '1000 g de agua filtrada en el depósito.'),
+      s(40, 'Enciende', 'Pon en marcha la cafetera.'),
+      s(400, 'Sirve', 'Pasa el café a un termo para conservar aroma y temperatura.'),
+    ],
+    notes: 'Si tu cafetera extrae muy rápido, sube un punto la dosis de café.',
+  },
+
+  /* ===================== Percoladora ===================== */
+  {
+    id: 'percolador-clasico', methodId: 'percolador', title: 'Percoladora clásica',
+    source: 'Cafetera de recirculación', coffee: 55, water: 1000, ratio: '1:18',
+    grind: 'Gruesa', grindLevel: 6, temp: 100, totalTime: 480, difficulty: 'Media',
+    summary: 'El agua sube y recircula por el café. Da un café fuerte; la clave es no pasarse de tiempo.',
+    steps: [
+      s(0, 'Agua y café', 'Llena el depósito con 1 L de agua y pon 55 g de café grueso en la cesta.'),
+      s(30, 'Al fuego', 'Calienta hasta que empiece a "percolar" (verás saltar el café en el visor).'),
+      s(60, 'Percola', 'Mantén un borboteo suave, no violento.'),
+      s(420, 'Retira', 'Tras 6–8 min de percolado, retira del fuego.'),
+      s(450, 'Sirve', 'Quita la cesta del café y sirve.'),
+    ],
+    notes: 'Molienda gruesa obligatoria: el café está en contacto mucho tiempo y se sobreextrae fácil.',
+  },
+  {
+    id: 'percolador-camping', methodId: 'percolador', title: 'Percoladora de camping',
+    source: 'Versión individual al fuego', coffee: 15, water: 250, ratio: '1:16,6',
+    grind: 'Gruesa', grindLevel: 6, temp: 100, totalTime: 420, difficulty: 'Media',
+    summary: 'La percoladora pequeña sobre fogón o brasas. Fuerte y reconfortante en plena naturaleza.',
+    steps: [
+      s(0, 'Agua y café', '250 g de agua en el depósito y 15 g de café grueso en la cesta.'),
+      s(30, 'Al fuego', 'Calienta hasta que empiece a percolar.'),
+      s(60, 'Percola', 'Mantén un borboteo suave 5–6 min.'),
+      s(390, 'Retira y sirve', 'Aparta del calor, quita la cesta y sirve.'),
+    ],
+    notes: 'Sobre brasas, aleja un poco la percoladora para evitar que hierva con violencia.',
   },
 ];
 
