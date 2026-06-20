@@ -26,10 +26,11 @@ function showLoader(text = 'Cargando…') {
   appEl.innerHTML = `<div class="loader"><div class="spinner"></div><p>${text}</p></div>`;
 }
 
-function showError(message, retryHash) {
+function showError(message, retryHash, detail) {
   appEl.innerHTML = `
     <div class="notice">
-      <p>${message}</p>
+      <p>${escapeHtml(message)}</p>
+      ${detail ? `<p style="font-size:.78rem;opacity:.7;word-break:break-word">${escapeHtml(detail)}</p>` : ''}
       <a class="btn btn--primary" href="${retryHash || location.hash || '#/'}">Reintentar</a>
     </div>`;
 }
@@ -71,7 +72,7 @@ async function renderHome() {
   try {
     [manga, chapters] = await Promise.all([ensureManga(), ensureChapters()]);
   } catch (e) {
-    showError('No se pudo conectar con MangaDex. Revisa tu conexión.');
+    showError('No se pudo cargar el catálogo de MangaDex.', '#/', e.message);
     return;
   }
 

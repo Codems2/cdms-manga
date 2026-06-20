@@ -1,7 +1,7 @@
 // Service Worker: cachea el "app shell" para arranque rápido y uso offline parcial.
 // Las imágenes del manga se sirven desde MangaDex (red) y no se precachean.
 
-const CACHE = 'cdms-shell-v1';
+const CACHE = 'cdms-shell-v2';
 const SHELL = [
   './',
   './index.html',

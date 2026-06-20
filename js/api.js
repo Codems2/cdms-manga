@@ -7,10 +7,38 @@ const COVERS = 'https://uploads.mangadex.org/covers';
 // ID de Berserk en MangaDex (fijo para no depender de una búsqueda).
 export const BERSERK_ID = '801513ba-a712-498c-8f57-cae55b38cc92';
 
-async function getJSON(url) {
+// Proxies CORS de respaldo. Si la petición directa a MangaDex falla por CORS
+// (típico al servir desde GitHub Pages u otro dominio), se reintenta a través
+// de uno de estos. Solo afecta a las peticiones JSON; las imágenes se cargan
+// con <img> y no necesitan CORS.
+const PROXIES = [
+  (u) => `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
+  (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+];
+
+async function tryFetchJSON(url) {
   const res = await fetch(url, { headers: { Accept: 'application/json' } });
-  if (!res.ok) throw new Error(`MangaDex ${res.status}`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
+}
+
+async function getJSON(url) {
+  // 1) Intento directo (funciona si MangaDex permite CORS desde este origen).
+  try {
+    return await tryFetchJSON(url);
+  } catch (directErr) {
+    // 2) Respaldo vía proxies CORS.
+    for (const wrap of PROXIES) {
+      try {
+        return await tryFetchJSON(wrap(url));
+      } catch { /* probar el siguiente */ }
+    }
+    throw new Error(
+      'No se pudo contactar con MangaDex (directo ni por proxy). ' +
+      'Puede ser CORS, un bloqueo de red o que el servicio esté caído. ' +
+      `Detalle: ${directErr.message}`
+    );
+  }
 }
 
 // Idiomas aceptados según preferencia del usuario.
