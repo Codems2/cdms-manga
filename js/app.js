@@ -1,4 +1,4 @@
-import { METHODS, recipesForMethod, getMethod, getRecipe } from './data.js';
+import { METHODS, recipesForMethod, getMethod, getRecipe, getGrindLevel } from './data.js';
 import * as store from './store.js';
 
 const appEl = document.getElementById('app');
@@ -124,13 +124,38 @@ function recipeListEl(recipes) {
           <span class="chip"><strong>${r.water} ${r.methodId === 'espresso' ? 'g' : 'ml'}</strong> agua</span>
           <span class="chip">Ratio <strong>${escapeHtml(r.ratio)}</strong></span>
           <span class="chip">⏱ <strong>${ratioText(r)}</strong></span>
-          <span class="chip">${escapeHtml(r.difficulty)}</span>
+          <span class="chip">⚙ Molienda <strong>${escapeHtml(getGrindLevel(r.grindLevel).name.toLowerCase())}</strong></span>
         </div>
       </a>
     `);
     ul.appendChild(card);
   }
   return ul;
+}
+
+// Bloque visual de la escala de molienda: 6 puntos de tamaño creciente con el
+// nivel de la receta resaltado, más la referencia cotidiana y las micras.
+function grindScaleEl(level) {
+  const g = getGrindLevel(level);
+  const box = el(`
+    <div class="grind">
+      <div class="grind__head">
+        <span class="grind__name">⚙ Molienda: ${escapeHtml(g.name)}</span>
+        <span class="grind__ref">≈ ${escapeHtml(g.ref)} · ${escapeHtml(g.microns)}</span>
+      </div>
+      <div class="grind__scale"></div>
+      <div class="grind__ends"><span>Más fino</span><span>Más grueso</span></div>
+    </div>
+  `);
+  const scale = box.querySelector('.grind__scale');
+  for (let i = 1; i <= 6; i++) {
+    const size = 8 + i * 3; // crece con el grosor
+    const dot = el(`<span class="grind__dot ${i === g.level ? 'is-active' : ''}"></span>`);
+    dot.style.width = size + 'px';
+    dot.style.height = size + 'px';
+    scale.appendChild(dot);
+  }
+  return box;
 }
 
 /* ---------------- vista: favoritos ---------------- */
@@ -200,6 +225,9 @@ function renderRecipe(recipeId) {
       <div class="detail-row"><span>Dificultad</span><span>${escapeHtml(r.difficulty)}</span></div>
     </div>
   `));
+
+  // Escala visual de molienda
+  container.appendChild(grindScaleEl(r.grindLevel));
 
   // Favorito
   const favRow = el('<div class="btn-row" style="padding:0"></div>');

@@ -76,6 +76,21 @@ export const METHODS = [
   },
 ];
 
+// Escala de molienda (1 = más fino, 6 = más grueso) con una referencia
+// cotidiana y un rango orientativo en micras para hacerse una idea del grosor.
+export const GRIND_LEVELS = [
+  { level: 1, name: 'Extra fino', ref: 'Harina / azúcar glas', microns: '< 300 µm' },
+  { level: 2, name: 'Fino', ref: 'Sal fina / azúcar', microns: '300–400 µm' },
+  { level: 3, name: 'Medio-fino', ref: 'Entre sal de mesa y arena', microns: '400–600 µm' },
+  { level: 4, name: 'Medio', ref: 'Sal de mesa / arena', microns: '600–800 µm' },
+  { level: 5, name: 'Medio-grueso', ref: 'Sal gruesa', microns: '800–1000 µm' },
+  { level: 6, name: 'Grueso', ref: 'Migas de pan / pimienta gruesa', microns: '> 1000 µm' },
+];
+
+export function getGrindLevel(level) {
+  return GRIND_LEVELS.find((g) => g.level === level) || GRIND_LEVELS[3];
+}
+
 // helper de paso de receta
 const step = (at, title, detail = '') => ({ at, title, detail });
 
@@ -90,6 +105,7 @@ export const RECIPES = [
     water: 250,
     ratio: '1:16,6',
     grind: 'Media-fina (como sal de mesa)',
+    grindLevel: 3,
     temp: 95,
     totalTime: 210,
     difficulty: 'Media',
@@ -114,6 +130,7 @@ export const RECIPES = [
     water: 300,
     ratio: '1:15',
     grind: 'Media-gruesa',
+    grindLevel: 5,
     temp: 92,
     totalTime: 210,
     difficulty: 'Media',
@@ -140,6 +157,7 @@ export const RECIPES = [
     water: 220,
     ratio: '1:13',
     grind: 'Media-fina',
+    grindLevel: 3,
     temp: 85,
     totalTime: 90,
     difficulty: 'Fácil',
@@ -161,6 +179,7 @@ export const RECIPES = [
     water: 200,
     ratio: '1:11',
     grind: 'Media',
+    grindLevel: 4,
     temp: 88,
     totalTime: 150,
     difficulty: 'Media',
@@ -187,6 +206,7 @@ export const RECIPES = [
     water: 500,
     ratio: '1:16,6',
     grind: 'Gruesa',
+    grindLevel: 6,
     temp: 95,
     totalTime: 540,
     difficulty: 'Fácil',
@@ -213,6 +233,7 @@ export const RECIPES = [
     water: 700,
     ratio: '1:16,6',
     grind: 'Media-gruesa',
+    grindLevel: 5,
     temp: 94,
     totalTime: 270,
     difficulty: 'Media',
@@ -237,6 +258,7 @@ export const RECIPES = [
     water: 150,
     ratio: '—',
     grind: 'Media-fina (sin apretar)',
+    grindLevel: 3,
     temp: 100,
     totalTime: 300,
     difficulty: 'Fácil',
@@ -263,6 +285,7 @@ export const RECIPES = [
     water: 36,
     ratio: '1:2',
     grind: 'Fina (ajustar al tiempo)',
+    grindLevel: 2,
     temp: 93,
     totalTime: 30,
     difficulty: 'Alta',
@@ -288,6 +311,7 @@ export const RECIPES = [
     water: 1000,
     ratio: '1:10',
     grind: 'Gruesa',
+    grindLevel: 6,
     temp: 20,
     totalTime: 57600,
     difficulty: 'Fácil',

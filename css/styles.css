@@ -135,6 +135,32 @@ body { padding-top: calc(var(--topbar-h) + var(--safe-top)); }
 .detail-row span:first-child { color: var(--text-dim); }
 .detail-row span:last-child { text-align: right; font-weight: 600; }
 
+/* ---------- Escala de molienda ---------- */
+.grind {
+  background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px;
+  padding: 14px; margin: 16px 0;
+}
+.grind__head { display: flex; flex-direction: column; gap: 2px; margin-bottom: 12px; }
+.grind__name { font-size: 0.95rem; font-weight: 700; }
+.grind__ref { font-size: 0.78rem; color: var(--text-dim); }
+.grind__scale {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 6px; padding: 4px 4px 0;
+}
+.grind__dot {
+  display: inline-block; border-radius: 50%;
+  background: var(--bg-elevated-2); border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.grind__dot.is-active {
+  background: var(--accent); border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+.grind__ends {
+  display: flex; justify-content: space-between;
+  font-size: 0.68rem; color: var(--text-dim); margin-top: 8px;
+}
+
 /* ---------- Temporizador ---------- */
 .timer {
   position: sticky; top: calc(var(--topbar-h) + var(--safe-top));
