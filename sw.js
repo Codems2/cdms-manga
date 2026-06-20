@@ -2,7 +2,7 @@
 // Así, estando online, siempre se ve la última versión desplegada (evita
 // quedarse atrapado en caché vieja). Offline, cae a la copia cacheada.
 
-const CACHE = 'cafe-shell-v7';
+const CACHE = 'cafe-shell-v8';
 const SHELL = [
   './',
   './index.html',
