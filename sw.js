@@ -1,15 +1,18 @@
-// Service Worker: cachea el "app shell" para arranque rápido y uso offline parcial.
-// Las imágenes del manga se sirven desde MangaDex (red) y no se precachean.
+// Service Worker: cachea el "app shell" para arranque rápido y uso offline.
+// La app es totalmente estática (sin red en tiempo de ejecución), así que
+// funciona offline una vez instalada.
 
-const CACHE = 'cdms-shell-v2';
+const CACHE = 'cafe-shell-v1';
 const SHELL = [
   './',
   './index.html',
   './css/styles.css',
   './js/app.js',
-  './js/api.js',
+  './js/data.js',
   './js/store.js',
   './manifest.webmanifest',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
 ];
 
 self.addEventListener('install', (e) => {
@@ -27,22 +30,17 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const { request } = e;
   if (request.method !== 'GET') return;
-
   const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
 
-  // No interceptar la API ni las imágenes de MangaDex (siempre desde la red).
-  if (url.hostname.includes('mangadex.org')) return;
-
-  // App shell: cache-first con actualización en segundo plano.
-  if (url.origin === self.location.origin) {
-    e.respondWith(
-      caches.match(request).then((cached) => {
-        const fetched = fetch(request).then((res) => {
-          if (res.ok) caches.open(CACHE).then((c) => c.put(request, res.clone()));
-          return res;
-        }).catch(() => cached);
-        return cached || fetched;
-      })
-    );
-  }
+  // Cache-first con actualización en segundo plano.
+  e.respondWith(
+    caches.match(request).then((cached) => {
+      const fetched = fetch(request).then((res) => {
+        if (res.ok) caches.open(CACHE).then((c) => c.put(request, res.clone()));
+        return res;
+      }).catch(() => cached);
+      return cached || fetched;
+    })
+  );
 });

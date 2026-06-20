@@ -1,13 +1,13 @@
 {
-  "name": "Berserk — Lector de manga",
-  "short_name": "Berserk",
-  "description": "Lector de manga mobile-first para leer Berserk en español.",
+  "name": "Cafetera — Recetario de café",
+  "short_name": "Cafetera",
+  "description": "Elige tu método de extracción y descubre recetas de café paso a paso.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0d0d0f",
-  "theme_color": "#0d0d0f",
+  "background_color": "#1c130d",
+  "theme_color": "#1c130d",
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
     { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }

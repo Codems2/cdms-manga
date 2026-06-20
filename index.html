@@ -3,57 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#0d0d0f" />
-  <meta name="description" content="Lector de manga mobile-first. Lee Berserk en español online." />
-  <title>Berserk — Lector de manga</title>
+  <meta name="theme-color" content="#1c130d" />
+  <meta name="description" content="Recetario de café mobile-first: elige el método de extracción y descubre cómo prepararlo." />
+  <title>Cafetera — Recetario de café</title>
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
   <header class="topbar" id="topbar">
     <button class="icon-btn" id="backBtn" aria-label="Volver" hidden>‹</button>
-    <h1 class="topbar__title" id="topbarTitle">Berserk</h1>
-    <button class="icon-btn" id="settingsBtn" aria-label="Ajustes">⚙</button>
+    <h1 class="topbar__title" id="topbarTitle">Recetario de café</h1>
+    <button class="icon-btn" id="favBtn" aria-label="Favoritos">★</button>
   </header>
 
-  <main id="app" class="app">
-    <div class="loader" id="bootLoader">
-      <div class="spinner"></div>
-      <p>Cargando…</p>
-    </div>
-  </main>
-
-  <!-- Panel de ajustes -->
-  <div class="sheet" id="settingsSheet" hidden>
-    <div class="sheet__backdrop" data-close-sheet></div>
-    <div class="sheet__panel" role="dialog" aria-label="Ajustes">
-      <div class="sheet__handle"></div>
-      <h2>Ajustes</h2>
-      <label class="row">
-        <span>Idioma</span>
-        <select id="langSelect">
-          <option value="es-la">Español (Latinoamérica)</option>
-          <option value="es">Español (España)</option>
-          <option value="any">Cualquier español</option>
-        </select>
-      </label>
-      <label class="row">
-        <span>Ahorro de datos</span>
-        <input type="checkbox" id="dataSaverToggle" />
-      </label>
-      <label class="row">
-        <span>Modo de lectura</span>
-        <select id="readModeSelect">
-          <option value="vertical">Scroll vertical</option>
-          <option value="paged">Página por página</option>
-        </select>
-      </label>
-      <button class="btn btn--ghost" id="clearProgressBtn">Borrar progreso de lectura</button>
-      <p class="sheet__note">Contenido servido por la API pública de MangaDex (scanlations de terceros).</p>
-    </div>
-  </div>
+  <main id="app" class="app"></main>
 
   <script type="module" src="js/app.js"></script>
 </body>

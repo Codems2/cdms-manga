@@ -1,20 +1,12 @@
-import * as api from './api.js';
+import { METHODS, recipesForMethod, getMethod, getRecipe } from './data.js';
 import * as store from './store.js';
 
 const appEl = document.getElementById('app');
-const topbar = document.getElementById('topbar');
 const topbarTitle = document.getElementById('topbarTitle');
 const backBtn = document.getElementById('backBtn');
-const settingsBtn = document.getElementById('settingsBtn');
+const favBtn = document.getElementById('favBtn');
 
-// Estado en memoria (cache de la sesión).
-const state = {
-  manga: null,
-  chapters: null,
-  chaptersLang: null, // idioma con el que se cargaron los capítulos
-};
-
-/* ---------------- Helpers de UI ---------------- */
+/* ---------------- helpers ---------------- */
 
 function el(html) {
   const t = document.createElement('template');
@@ -22,399 +14,349 @@ function el(html) {
   return t.content.firstElementChild;
 }
 
-function showLoader(text = 'Cargando…') {
-  appEl.innerHTML = `<div class="loader"><div class="spinner"></div><p>${text}</p></div>`;
+function escapeHtml(str = '') {
+  return String(str).replace(/[&<>"']/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
-function showError(message, retryHash, detail) {
-  appEl.innerHTML = `
-    <div class="notice">
-      <p>${escapeHtml(message)}</p>
-      ${detail ? `<p style="font-size:.78rem;opacity:.7;word-break:break-word">${escapeHtml(detail)}</p>` : ''}
-      <a class="btn btn--primary" href="${retryHash || location.hash || '#/'}">Reintentar</a>
-    </div>`;
+function fmtTime(total) {
+  total = Math.max(0, Math.floor(total));
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  const mm = String(m).padStart(2, '0');
+  const ss = String(s).padStart(2, '0');
+  return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
 }
 
-function chapterLabel(ch) {
-  if (ch.chapter == null) return ch.title || 'Oneshot';
-  let label = `Capítulo ${ch.chapter}`;
-  if (ch.title) label += ` — ${ch.title}`;
-  return label;
+function ratioText(r) {
+  const total = r.totalTime;
+  return total >= 3600 ? `~${Math.round(total / 3600)} h` : fmtTime(total);
 }
 
-/* ---------------- Carga de datos ---------------- */
+/* ---------------- vista: inicio (métodos) ---------------- */
 
-async function ensureManga() {
-  if (!state.manga) state.manga = await api.fetchManga();
-  return state.manga;
-}
-
-async function ensureChapters() {
-  const lang = store.getPrefs().lang;
-  if (!state.chapters || state.chaptersLang !== lang) {
-    state.chapters = await api.fetchChapters(api.BERSERK_ID, lang);
-    state.chaptersLang = lang;
-  }
-  return state.chapters;
-}
-
-/* ---------------- Vista: lista de capítulos ---------------- */
-
-let sortAsc = true;
-let searchTerm = '';
-
-async function renderHome() {
+function renderHome() {
   backBtn.hidden = true;
-  showLoader('Buscando capítulos…');
-  topbar.classList.remove('topbar--hidden');
+  favBtn.classList.remove('is-active');
+  topbarTitle.textContent = 'Recetario de café';
 
-  let manga, chapters;
-  try {
-    [manga, chapters] = await Promise.all([ensureManga(), ensureChapters()]);
-  } catch (e) {
-    showError('No se pudo cargar el catálogo de MangaDex.', '#/', e.message);
-    return;
-  }
-
-  topbarTitle.textContent = manga.title;
-
-  if (!chapters.length) {
-    appEl.innerHTML = `<div class="notice"><p>No se encontraron capítulos en este idioma.
-      Prueba con otro idioma en ⚙ Ajustes.</p></div>`;
-    return;
-  }
-
-  const last = store.getLast();
   const container = el('<div></div>');
-
-  // Hero
-  const hero = el(`
-    <section class="hero">
-      ${manga.cover ? `<div class="hero__bg" style="background-image:url('${manga.cover}')"></div>` : ''}
-      ${manga.cover ? `<img class="hero__cover" src="${manga.cover}" alt="Portada de ${manga.title}" />` : ''}
-      <div class="hero__info">
-        <h2 class="hero__title">${manga.title}</h2>
-        <p class="hero__meta">${manga.year || ''} · ${chapters.length} capítulos · ${statusLabel(manga.status)}</p>
-        <p class="hero__desc">${escapeHtml(manga.description)}</p>
-      </div>
+  container.appendChild(el(`
+    <section class="intro">
+      <h2>¿Cómo vas a preparar tu café hoy?</h2>
+      <p>Elige primero tu método de extracción y te mostraré las recetas para prepararlo paso a paso.</p>
     </section>
-  `);
-  container.appendChild(hero);
+  `));
 
-  // Continuar leyendo
-  if (last) {
-    const cont = el(`<button class="continue">▶ Continuar — Cap. ${last.chapterNum ?? ''}</button>`);
-    cont.addEventListener('click', () => { location.hash = `#/leer/${last.chapterId}`; });
-    container.appendChild(cont);
+  const grid = el('<div class="methods"></div>');
+  for (const m of METHODS) {
+    const count = recipesForMethod(m.id).length;
+    const card = el(`
+      <a class="method-card" href="#/metodo/${m.id}">
+        <div class="method-card__emoji">${m.emoji}</div>
+        <div class="method-card__type">${escapeHtml(m.type)}</div>
+        <div class="method-card__name">${escapeHtml(m.name)}</div>
+        <div class="method-card__tag">${escapeHtml(m.tagline)}</div>
+        <div class="method-card__count">${count} ${count === 1 ? 'receta' : 'recetas'}</div>
+      </a>
+    `);
+    grid.appendChild(card);
   }
+  container.appendChild(grid);
 
-  // Cabecera de lista + buscador
-  const head = el(`
-    <div class="list-head">
-      <h2>Capítulos</h2>
-      <button class="sort-btn" id="sortBtn">${sortAsc ? '↑ Antiguos' : '↓ Recientes'}</button>
-    </div>
-  `);
-  container.appendChild(head);
-
-  const search = el(`<input class="search" type="search" inputmode="decimal"
-    placeholder="Buscar capítulo (nº o título)…" value="${escapeAttr(searchTerm)}" />`);
-  container.appendChild(search);
-
-  const ul = el('<ul class="chapters" id="chapterList"></ul>');
-  container.appendChild(ul);
+  container.appendChild(el(`
+    <p class="foot-note">Recetas basadas en técnicas ampliamente difundidas del mundo del café
+    (James Hoffmann, Tetsu Kasuya, técnicas tradicionales). Ajusta cantidades, molienda y tiempos a tu gusto.</p>
+  `));
 
   appEl.innerHTML = '';
   appEl.appendChild(container);
-
-  const paint = () => paintChapters(ul, chapters);
-  paint();
-
-  head.querySelector('#sortBtn').addEventListener('click', (ev) => {
-    sortAsc = !sortAsc;
-    ev.target.textContent = sortAsc ? '↑ Antiguos' : '↓ Recientes';
-    paint();
-  });
-  search.addEventListener('input', (ev) => {
-    searchTerm = ev.target.value.trim().toLowerCase();
-    paint();
-  });
 }
 
-function paintChapters(ul, chapters) {
-  let list = [...chapters];
-  if (!sortAsc) list.reverse();
-  if (searchTerm) {
-    list = list.filter((ch) =>
-      String(ch.chapter ?? '').includes(searchTerm) ||
-      (ch.title || '').toLowerCase().includes(searchTerm)
-    );
-  }
+/* ---------------- vista: recetas de un método ---------------- */
 
-  ul.innerHTML = '';
-  if (!list.length) {
-    ul.appendChild(el('<li class="notice">Sin resultados.</li>'));
-    return;
-  }
-  const frag = document.createDocumentFragment();
-  for (const ch of list) {
-    const read = store.isRead(ch.id);
-    const li = el(`
-      <a class="chapter ${read ? 'chapter--read' : ''}" href="#/leer/${ch.id}">
-        <div class="chapter__main">
-          <div class="chapter__title">${escapeHtml(chapterLabel(ch))}</div>
-          <div class="chapter__sub">${ch.group ? escapeHtml(ch.group) + ' · ' : ''}${ch.lang}${ch.pages ? ' · ' + ch.pages + ' pág.' : ''}</div>
-        </div>
-        ${read ? '<span class="chapter__check">✓</span>' : ''}
-      </a>
-    `);
-    frag.appendChild(li);
-  }
-  ul.appendChild(frag);
-}
+function renderMethod(methodId) {
+  const method = getMethod(methodId);
+  if (!method) return renderHome();
 
-function statusLabel(s) {
-  return { ongoing: 'En curso', completed: 'Completo', hiatus: 'En pausa', cancelled: 'Cancelado' }[s] || '';
-}
-
-/* ---------------- Vista: lector ---------------- */
-
-let scrollHandler = null;
-let keyHandler = null;
-
-async function renderReader(chapterId) {
-  detachReaderHandlers();
+  store.setLastMethod(methodId);
   backBtn.hidden = false;
-  topbar.classList.remove('topbar--hidden');
-  showLoader('Cargando páginas…');
+  favBtn.classList.remove('is-active');
+  topbarTitle.textContent = method.name;
 
-  const prefs = store.getPrefs();
+  const recipes = recipesForMethod(methodId);
+  const container = el('<div></div>');
 
-  // Asegura la lista para conocer vecinos y número de capítulo.
-  let chapters;
-  try {
-    chapters = await ensureChapters();
-  } catch {
-    chapters = state.chapters || [];
-  }
-  const idx = chapters.findIndex((c) => c.id === chapterId);
-  const current = chapters[idx];
-  const prev = idx > 0 ? chapters[idx - 1] : null;
-  const next = idx >= 0 && idx < chapters.length - 1 ? chapters[idx + 1] : null;
-
-  topbarTitle.textContent = current ? `Cap. ${current.chapter ?? ''}` : 'Lectura';
-
-  let pages;
-  try {
-    pages = await api.fetchChapterPages(chapterId, prefs.dataSaver);
-  } catch (e) {
-    showError('No se pudieron cargar las páginas de este capítulo.');
-    return;
-  }
-  if (!pages.length) {
-    showError('Este capítulo no tiene páginas legibles en la app.');
-    return;
-  }
-
-  store.setLast(chapterId, current?.chapter, 0);
-
-  const paged = prefs.readMode === 'paged';
-  const reader = el(`<div class="reader ${paged ? 'reader--paged' : ''}"></div>`);
-  const pagesWrap = el('<div class="reader__pages"></div>');
-  pages.forEach((src, i) => {
-    const img = document.createElement('img');
-    img.src = src;
-    img.alt = `Página ${i + 1}`;
-    img.loading = i < 2 ? 'eager' : 'lazy';
-    img.decoding = 'async';
-    img.dataset.page = i;
-    if (paged && i === 0) img.classList.add('is-current');
-    img.addEventListener('error', () => { img.alt = `⚠ Página ${i + 1} no cargó`; });
-    pagesWrap.appendChild(img);
-  });
-  reader.appendChild(pagesWrap);
-
-  // Footer con navegación entre capítulos
-  const footer = el(`
-    <div class="reader__footer">
-      <button class="btn" id="prevCh" ${prev ? '' : 'disabled'}>‹ Anterior</button>
-      <a class="btn btn--ghost" href="#/">Capítulos</a>
-      <button class="btn btn--primary" id="nextCh" ${next ? '' : 'disabled'}>Siguiente ›</button>
-    </div>
-  `);
-  reader.appendChild(footer);
+  container.appendChild(el(`
+    <section class="method-head">
+      <div class="method-head__emoji">${method.emoji}</div>
+      <div class="method-head__type">${escapeHtml(method.type)}</div>
+      <h2>${escapeHtml(method.name)}</h2>
+      <p>${escapeHtml(method.description)}</p>
+    </section>
+  `));
+  container.appendChild(el(`<div class="section-title">Recetas (${recipes.length})</div>`));
+  container.appendChild(recipeListEl(recipes));
 
   appEl.innerHTML = '';
-  appEl.appendChild(reader);
+  appEl.appendChild(container);
+  window.scrollTo(0, 0);
+}
 
-  const indicator = el(`<div class="page-indicator">1 / ${pages.length}</div>`);
-  document.body.appendChild(indicator);
+function recipeListEl(recipes) {
+  const ul = el('<ul class="recipes"></ul>');
+  if (!recipes.length) {
+    ul.appendChild(el('<li class="empty-fav">No hay recetas aquí todavía.</li>'));
+    return ul;
+  }
+  for (const r of recipes) {
+    const fav = store.isFavorite(r.id);
+    const card = el(`
+      <a class="recipe-card" href="#/receta/${r.id}">
+        <div class="recipe-card__top">
+          <div class="recipe-card__title">${escapeHtml(r.title)}</div>
+          ${fav ? '<span class="recipe-card__star">★</span>' : ''}
+        </div>
+        <div class="recipe-card__source">${escapeHtml(r.source)}</div>
+        <div class="recipe-card__chips">
+          <span class="chip"><strong>${r.coffee} g</strong> café</span>
+          <span class="chip"><strong>${r.water} ${r.methodId === 'espresso' ? 'g' : 'ml'}</strong> agua</span>
+          <span class="chip">Ratio <strong>${escapeHtml(r.ratio)}</strong></span>
+          <span class="chip">⏱ <strong>${ratioText(r)}</strong></span>
+          <span class="chip">${escapeHtml(r.difficulty)}</span>
+        </div>
+      </a>
+    `);
+    ul.appendChild(card);
+  }
+  return ul;
+}
 
+/* ---------------- vista: favoritos ---------------- */
+
+function renderFavorites() {
+  backBtn.hidden = false;
+  favBtn.classList.add('is-active');
+  topbarTitle.textContent = 'Favoritos';
+
+  const favs = store.getFavorites();
+  const recipes = [...favs].map(getRecipe).filter(Boolean);
+
+  const container = el('<div></div>');
+  container.appendChild(el('<div class="section-title">Tus recetas guardadas</div>'));
+  if (!recipes.length) {
+    container.appendChild(el(`<div class="empty-fav">Aún no tienes favoritos.<br>
+      Toca la estrella ★ en una receta para guardarla aquí.</div>`));
+  } else {
+    container.appendChild(recipeListEl(recipes));
+  }
+  appEl.innerHTML = '';
+  appEl.appendChild(container);
+  window.scrollTo(0, 0);
+}
+
+/* ---------------- vista: detalle de receta + temporizador ---------------- */
+
+let timer = null; // { id, elapsed, running }
+
+function stopTimer() {
+  if (timer && timer.id) clearInterval(timer.id);
+  timer = null;
+}
+
+function renderRecipe(recipeId) {
+  stopTimer();
+  const r = getRecipe(recipeId);
+  if (!r) return renderHome();
+  const method = getMethod(r.methodId);
+
+  backBtn.hidden = false;
+  favBtn.classList.remove('is-active');
+  topbarTitle.textContent = method ? method.name : 'Receta';
+
+  const container = el('<div class="recipe"></div>');
+  container.appendChild(el(`
+    <div>
+      <h2 class="recipe__title">${escapeHtml(r.title)}</h2>
+      <p class="recipe__source">${escapeHtml(r.source)} · ${method ? escapeHtml(method.name) : ''}</p>
+      <p class="recipe__summary">${escapeHtml(r.summary)}</p>
+    </div>
+  `));
+
+  const waterUnit = r.methodId === 'espresso' ? 'g' : 'ml';
+  container.appendChild(el(`
+    <div class="specs">
+      <div class="spec"><div class="spec__val">${r.coffee} g</div><div class="spec__label">Café</div></div>
+      <div class="spec"><div class="spec__val">${r.water} ${waterUnit}</div><div class="spec__label">Agua</div></div>
+      <div class="spec"><div class="spec__val">${escapeHtml(r.ratio)}</div><div class="spec__label">Ratio</div></div>
+    </div>
+  `));
+  container.appendChild(el(`
+    <div class="detail-rows">
+      <div class="detail-row"><span>Molienda</span><span>${escapeHtml(r.grind)}</span></div>
+      <div class="detail-row"><span>Temperatura</span><span>${r.temp} °C</span></div>
+      <div class="detail-row"><span>Tiempo total</span><span>${ratioText(r)}</span></div>
+      <div class="detail-row"><span>Dificultad</span><span>${escapeHtml(r.difficulty)}</span></div>
+    </div>
+  `));
+
+  // Favorito
+  const favRow = el('<div class="btn-row" style="padding:0"></div>');
+  const favToggle = el(`<button class="btn btn--ghost">${store.isFavorite(r.id) ? '★ Guardada' : '☆ Guardar'}</button>`);
+  favToggle.addEventListener('click', () => {
+    const now = store.toggleFavorite(r.id);
+    favToggle.textContent = now ? '★ Guardada' : '☆ Guardar';
+  });
+  favRow.appendChild(favToggle);
+  container.appendChild(favRow);
+
+  // Temporizador (sticky)
+  const clock = el(`<div class="timer__clock">00:00</div>`);
+  const startBtn = el('<button class="btn btn--primary">▶ Iniciar</button>');
+  const resetBtn = el('<button class="btn btn--ghost">↺ Reiniciar</button>');
+  const timerBox = el('<div class="timer"></div>');
+  timerBox.appendChild(clock);
+  const controls = el('<div class="timer__controls"></div>');
+  controls.appendChild(startBtn);
+  controls.appendChild(resetBtn);
+  timerBox.appendChild(controls);
+  container.appendChild(timerBox);
+
+  // Pasos
+  const stepsUl = el('<ul class="steps"></ul>');
+  r.steps.forEach((s, i) => {
+    const li = el(`
+      <li class="step" data-at="${s.at}" data-index="${i}">
+        <div class="step__time">${fmtTime(s.at)}</div>
+        <div class="step__body">
+          <div class="step__title">${escapeHtml(s.title)}</div>
+          ${s.detail ? `<div class="step__detail">${escapeHtml(s.detail)}</div>` : ''}
+        </div>
+      </li>
+    `);
+    stepsUl.appendChild(li);
+  });
+  container.appendChild(stepsUl);
+
+  if (r.notes) {
+    container.appendChild(el(`<div class="notes"><strong>Tip:</strong> ${escapeHtml(r.notes)}</div>`));
+  }
+  container.appendChild(el(`
+    <div class="btn-row" style="padding:0;margin-top:8px">
+      <a class="btn" href="#/metodo/${r.methodId}">← Más recetas de ${method ? escapeHtml(method.name) : 'este método'}</a>
+    </div>
+  `));
+
+  appEl.innerHTML = '';
+  appEl.appendChild(container);
   window.scrollTo(0, 0);
 
-  if (prev) footer.querySelector('#prevCh').addEventListener('click', () => goTo(prev.id));
-  if (next) footer.querySelector('#nextCh').addEventListener('click', () => goTo(next.id));
-
-  function goTo(id) {
-    cleanupIndicator();
-    location.hash = `#/leer/${id}`;
-  }
-  function cleanupIndicator() { indicator.remove(); }
-
-  if (paged) {
-    setupPagedMode(reader, pagesWrap, pages, indicator, current, next);
-  } else {
-    setupVerticalMode(pagesWrap, pages, indicator, chapterId, current, cleanupIndicator);
-  }
+  setupTimer(r, clock, startBtn, resetBtn, stepsUl);
 }
 
-function setupVerticalMode(pagesWrap, pages, indicator, chapterId, current, cleanupIndicator) {
-  let lastShownTop = 0;
-  let ticking = false;
-  let markedRead = false;
+function setupTimer(recipe, clock, startBtn, resetBtn, stepsUl) {
+  const stepEls = [...stepsUl.querySelectorAll('.step')];
+  // El temporizador cuenta hasta el inicio del último paso + un margen.
+  const lastAt = recipe.steps[recipe.steps.length - 1].at;
+  const target = Math.min(recipe.totalTime, lastAt + 60) || lastAt + 60;
+  let lastStepIndex = -1;
 
-  scrollHandler = () => {
-    if (ticking) return;
-    ticking = true;
-    requestAnimationFrame(() => {
-      ticking = false;
-      const imgs = pagesWrap.querySelectorAll('img');
-      const viewMid = window.scrollY + window.innerHeight / 2;
-      let cur = 1;
-      imgs.forEach((img, i) => {
-        if (img.offsetTop <= viewMid) cur = i + 1;
-      });
-      indicator.textContent = `${cur} / ${pages.length}`;
+  timer = { id: null, elapsed: 0, running: false };
 
-      // Auto-ocultar topbar al hacer scroll hacia abajo.
-      const y = window.scrollY;
-      if (y > lastShownTop + 8 && y > 80) topbar.classList.add('topbar--hidden');
-      else if (y < lastShownTop - 8) topbar.classList.remove('topbar--hidden');
-      lastShownTop = y;
-
-      // Marca como leído al llegar al final.
-      if (!markedRead && cur >= pages.length) {
-        markedRead = true;
-        store.markRead(chapterId);
-      }
+  function paint() {
+    clock.textContent = fmtTime(timer.elapsed);
+    // Paso actual = el último cuyo "at" <= elapsed
+    let current = -1;
+    recipe.steps.forEach((s, i) => { if (s.at <= timer.elapsed) current = i; });
+    stepEls.forEach((node, i) => {
+      node.classList.toggle('is-current', i === current && timer.running);
+      node.classList.toggle('is-done', i < current);
     });
-  };
-  window.addEventListener('scroll', scrollHandler, { passive: true });
+    // Aviso al cambiar de paso
+    if (timer.running && current !== lastStepIndex && current >= 0) {
+      cue();
+      lastStepIndex = current;
+    }
+  }
+
+  function tick() {
+    timer.elapsed += 1;
+    paint();
+    if (timer.elapsed >= target) pause();
+  }
+
+  function start() {
+    if (timer.running) return;
+    timer.running = true;
+    startBtn.textContent = '❚❚ Pausar';
+    startBtn.onclick = pause;
+    lastStepIndex = -2; // fuerza aviso del primer paso
+    timer.id = setInterval(tick, 1000);
+    paint();
+  }
+  function pause() {
+    timer.running = false;
+    if (timer.id) clearInterval(timer.id);
+    timer.id = null;
+    startBtn.textContent = '▶ Reanudar';
+    startBtn.onclick = start;
+    paint();
+  }
+  function reset() {
+    pause();
+    timer.elapsed = 0;
+    lastStepIndex = -1;
+    startBtn.textContent = '▶ Iniciar';
+    startBtn.onclick = start;
+    stepEls.forEach((n) => n.classList.remove('is-current', 'is-done'));
+    clock.textContent = fmtTime(0);
+  }
+
+  startBtn.onclick = start;
+  resetBtn.onclick = reset;
 }
 
-function setupPagedMode(reader, pagesWrap, pages, indicator, current, next) {
-  let page = 0;
-  const imgs = pagesWrap.querySelectorAll('img');
-
-  const show = (n) => {
-    page = Math.max(0, Math.min(pages.length - 1, n));
-    imgs.forEach((img, i) => img.classList.toggle('is-current', i === page));
-    indicator.textContent = `${page + 1} / ${pages.length}`;
-    window.scrollTo(0, 0);
-    if (page === pages.length - 1 && current) store.markRead(current.id);
-  };
-
-  // Zonas táctiles izquierda/derecha.
-  const left = el('<div class="page-tap page-tap--left"></div>');
-  const right = el('<div class="page-tap page-tap--right"></div>');
-  left.addEventListener('click', () => { if (page === 0) return; show(page - 1); });
-  right.addEventListener('click', () => {
-    if (page < pages.length - 1) show(page + 1);
-    else if (next) location.hash = `#/leer/${next.id}`;
-  });
-  reader.appendChild(left);
-  reader.appendChild(right);
-
-  keyHandler = (e) => {
-    if (e.key === 'ArrowRight' || e.key === ' ') show(page + 1);
-    else if (e.key === 'ArrowLeft') show(page - 1);
-  };
-  window.addEventListener('keydown', keyHandler);
-
-  show(0);
+// Pequeño aviso sonoro + vibración al cambiar de paso.
+let audioCtx = null;
+function cue() {
+  try {
+    if (navigator.vibrate) navigator.vibrate(60);
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.frequency.value = 880;
+    g.gain.setValueAtTime(0.001, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.2, audioCtx.currentTime + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(); o.stop(audioCtx.currentTime + 0.26);
+  } catch { /* sin audio disponible */ }
 }
 
-function detachReaderHandlers() {
-  if (scrollHandler) { window.removeEventListener('scroll', scrollHandler); scrollHandler = null; }
-  if (keyHandler) { window.removeEventListener('keydown', keyHandler); keyHandler = null; }
-  topbar.classList.remove('topbar--hidden');
-  document.querySelectorAll('.page-indicator').forEach((n) => n.remove());
-}
-
-/* ---------------- Escapes ---------------- */
-
-function escapeHtml(str = '') {
-  return str.replace(/[&<>"']/g, (c) =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-}
-function escapeAttr(str = '') { return escapeHtml(str); }
-
-/* ---------------- Router ---------------- */
+/* ---------------- router ---------------- */
 
 function router() {
-  detachReaderHandlers();
+  stopTimer();
   const hash = location.hash || '#/';
-  const readerMatch = hash.match(/^#\/leer\/(.+)$/);
-  if (readerMatch) {
-    renderReader(decodeURIComponent(readerMatch[1]));
-  } else {
-    renderHome();
-  }
-  document.body.scrollTop = 0;
+  let m;
+  if ((m = hash.match(/^#\/metodo\/(.+)$/))) renderMethod(decodeURIComponent(m[1]));
+  else if ((m = hash.match(/^#\/receta\/(.+)$/))) renderRecipe(decodeURIComponent(m[1]));
+  else if (hash === '#/favoritos') renderFavorites();
+  else renderHome();
 }
 
 window.addEventListener('hashchange', router);
-
-/* ---------------- Topbar acciones ---------------- */
 
 backBtn.addEventListener('click', () => {
   if (history.length > 1) history.back();
   else location.hash = '#/';
 });
+favBtn.addEventListener('click', () => { location.hash = '#/favoritos'; });
 
-/* ---------------- Panel de ajustes ---------------- */
-
-const sheet = document.getElementById('settingsSheet');
-const langSelect = document.getElementById('langSelect');
-const dataSaverToggle = document.getElementById('dataSaverToggle');
-const readModeSelect = document.getElementById('readModeSelect');
-const clearProgressBtn = document.getElementById('clearProgressBtn');
-
-function openSheet() {
-  const p = store.getPrefs();
-  langSelect.value = p.lang;
-  dataSaverToggle.checked = p.dataSaver;
-  readModeSelect.value = p.readMode;
-  sheet.hidden = false;
-}
-function closeSheet() { sheet.hidden = true; }
-
-settingsBtn.addEventListener('click', openSheet);
-sheet.querySelector('[data-close-sheet]').addEventListener('click', closeSheet);
-
-langSelect.addEventListener('change', () => {
-  store.setPrefs({ lang: langSelect.value });
-  state.chapters = null; // forzar recarga
-  if ((location.hash || '#/') === '#/') router();
-});
-dataSaverToggle.addEventListener('change', () =>
-  store.setPrefs({ dataSaver: dataSaverToggle.checked }));
-readModeSelect.addEventListener('change', () =>
-  store.setPrefs({ readMode: readModeSelect.value }));
-clearProgressBtn.addEventListener('click', () => {
-  store.clearProgress();
-  closeSheet();
-  router();
-});
-
-/* ---------------- Service Worker (PWA) ---------------- */
-
+/* ---------------- service worker ---------------- */
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
-  });
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 }
-
-/* ---------------- Arranque ---------------- */
 
 router();

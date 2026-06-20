@@ -1,62 +1,32 @@
-// Persistencia en localStorage: preferencias y progreso de lectura.
+// Persistencia ligera en localStorage: favoritos y último método visto.
 
-const PREFS_KEY = 'cdms.prefs';
-const PROGRESS_KEY = 'cdms.progress';
+const FAV_KEY = 'cafe.favs';
+const LAST_KEY = 'cafe.lastMethod';
 
-const defaultPrefs = {
-  lang: 'es-la',
-  dataSaver: false,
-  readMode: 'vertical', // 'vertical' | 'paged'
-};
-
-export function getPrefs() {
+export function getFavorites() {
   try {
-    return { ...defaultPrefs, ...JSON.parse(localStorage.getItem(PREFS_KEY) || '{}') };
+    return new Set(JSON.parse(localStorage.getItem(FAV_KEY) || '[]'));
   } catch {
-    return { ...defaultPrefs };
+    return new Set();
   }
 }
 
-export function setPrefs(patch) {
-  const next = { ...getPrefs(), ...patch };
-  localStorage.setItem(PREFS_KEY, JSON.stringify(next));
-  return next;
+export function isFavorite(recipeId) {
+  return getFavorites().has(recipeId);
 }
 
-// progress = { read: { [chapterId]: true }, last: { chapterId, chapterNum, page } }
-function getProgress() {
-  try {
-    return JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}');
-  } catch {
-    return {};
-  }
+export function toggleFavorite(recipeId) {
+  const favs = getFavorites();
+  if (favs.has(recipeId)) favs.delete(recipeId);
+  else favs.add(recipeId);
+  localStorage.setItem(FAV_KEY, JSON.stringify([...favs]));
+  return favs.has(recipeId);
 }
 
-function saveProgress(p) {
-  localStorage.setItem(PROGRESS_KEY, JSON.stringify(p));
+export function getLastMethod() {
+  return localStorage.getItem(LAST_KEY);
 }
 
-export function isRead(chapterId) {
-  return !!getProgress().read?.[chapterId];
-}
-
-export function markRead(chapterId) {
-  const p = getProgress();
-  p.read = p.read || {};
-  p.read[chapterId] = true;
-  saveProgress(p);
-}
-
-export function getLast() {
-  return getProgress().last || null;
-}
-
-export function setLast(chapterId, chapterNum, page = 0) {
-  const p = getProgress();
-  p.last = { chapterId, chapterNum, page };
-  saveProgress(p);
-}
-
-export function clearProgress() {
-  localStorage.removeItem(PROGRESS_KEY);
+export function setLastMethod(id) {
+  localStorage.setItem(LAST_KEY, id);
 }
