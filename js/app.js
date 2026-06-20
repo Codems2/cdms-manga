@@ -1,10 +1,14 @@
 import { METHODS, recipesForMethod, getMethod, getRecipe, getGrindLevel, CALIBRATION } from './data.js';
 import * as store from './store.js';
+import { icon } from './icons.js';
 
 const appEl = document.getElementById('app');
 const topbarTitle = document.getElementById('topbarTitle');
 const backBtn = document.getElementById('backBtn');
 const favBtn = document.getElementById('favBtn');
+
+backBtn.innerHTML = icon('back');
+favBtn.innerHTML = icon('star');
 
 /* ---------------- helpers ---------------- */
 
@@ -51,7 +55,7 @@ function renderHome() {
 
   container.appendChild(el(`
     <div class="btn-row" style="margin-top:6px">
-      <a class="btn" href="#/calibracion">🎯 ¿No te supo bien? Calíbralo por sabor</a>
+      <a class="btn" href="#/calibracion">${icon('target', { size: 18 })}¿No te supo bien? Calíbralo por sabor</a>
     </div>
   `));
 
@@ -60,7 +64,7 @@ function renderHome() {
     const count = recipesForMethod(m.id).length;
     const card = el(`
       <a class="method-card" href="#/metodo/${m.id}">
-        <div class="method-card__emoji">${m.emoji}</div>
+        <div class="method-card__icon">${icon(m.icon, { size: 34 })}</div>
         <div class="method-card__type">${escapeHtml(m.type)}</div>
         <div class="method-card__name">${escapeHtml(m.name)}</div>
         <div class="method-card__tag">${escapeHtml(m.tagline)}</div>
@@ -96,7 +100,7 @@ function renderMethod(methodId) {
 
   container.appendChild(el(`
     <section class="method-head">
-      <div class="method-head__emoji">${method.emoji}</div>
+      <div class="method-head__icon">${icon(method.icon, { size: 44 })}</div>
       <div class="method-head__type">${escapeHtml(method.type)}</div>
       <h2>${escapeHtml(method.name)}</h2>
       <p>${escapeHtml(method.description)}</p>
@@ -122,15 +126,15 @@ function recipeListEl(recipes) {
       <a class="recipe-card" href="#/receta/${r.id}">
         <div class="recipe-card__top">
           <div class="recipe-card__title">${escapeHtml(r.title)}</div>
-          ${fav ? '<span class="recipe-card__star">★</span>' : ''}
+          ${fav ? `<span class="recipe-card__star">${icon('star-filled', { size: 16 })}</span>` : ''}
         </div>
         <div class="recipe-card__source">${escapeHtml(r.source)}</div>
         <div class="recipe-card__chips">
-          <span class="chip"><strong>${r.coffee} g</strong> café</span>
-          <span class="chip"><strong>${r.water} ${r.methodId === 'espresso' ? 'g' : 'ml'}</strong> agua</span>
+          <span class="chip">${icon('bean', { size: 13, cls: 'chip-ico' })}<strong>${r.coffee} g</strong></span>
+          <span class="chip">${icon('droplet', { size: 13, cls: 'chip-ico' })}<strong>${r.water} ${r.methodId === 'espresso' ? 'g' : 'ml'}</strong></span>
           <span class="chip">Ratio <strong>${escapeHtml(r.ratio)}</strong></span>
-          <span class="chip">⏱ <strong>${ratioText(r)}</strong></span>
-          <span class="chip">⚙ Molienda <strong>${escapeHtml(getGrindLevel(r.grindLevel).name.toLowerCase())}</strong></span>
+          <span class="chip">${icon('clock', { size: 13, cls: 'chip-ico' })}<strong>${ratioText(r)}</strong></span>
+          <span class="chip">${icon('grind', { size: 13, cls: 'chip-ico' })}<strong>${escapeHtml(getGrindLevel(r.grindLevel).name.toLowerCase())}</strong></span>
         </div>
       </a>
     `);
@@ -179,7 +183,7 @@ function grindScaleEl(level) {
   const box = el(`
     <div class="grind">
       <div class="grind__head">
-        <span class="grind__name">⚙ Molienda: ${escapeHtml(g.name)}</span>
+        <span class="grind__name">${icon('grind', { size: 16, cls: 'inline-ico' })} Molienda: ${escapeHtml(g.name)}</span>
         <span class="grind__ref">≈ ${escapeHtml(g.ref)} · ${escapeHtml(g.microns)}</span>
       </div>
       ${grindSwatchSVG(g.level)}
@@ -210,7 +214,7 @@ function renderCalibration() {
 
   container.appendChild(el(`
     <section class="intro">
-      <h2>🎯 Calibración por sabor</h2>
+      <h2>${icon('target', { size: 22, cls: 'inline-ico' })} Calibración por sabor</h2>
       <p>${escapeHtml(c.intro)}</p>
     </section>
   `));
@@ -223,7 +227,7 @@ function renderCalibration() {
     quick.appendChild(el(`
       <div class="quick-ref__row">
         <span class="quick-ref__taste">${escapeHtml(q.taste)}</span>
-        <span class="quick-ref__arrow">→</span>
+        <span class="quick-ref__arrow">${icon('arrow', { size: 16 })}</span>
         <span class="quick-ref__action">${escapeHtml(q.action)}</span>
       </div>
     `));
@@ -280,7 +284,7 @@ function renderFavorites() {
   container.appendChild(el('<div class="section-title">Tus recetas guardadas</div>'));
   if (!recipes.length) {
     container.appendChild(el(`<div class="empty-fav">Aún no tienes favoritos.<br>
-      Toca la estrella ★ en una receta para guardarla aquí.</div>`));
+      Toca «Guardar» en una receta para añadirla aquí.</div>`));
   } else {
     container.appendChild(recipeListEl(recipes));
   }
@@ -339,18 +343,18 @@ function renderRecipe(recipeId) {
 
   // Favorito
   const favRow = el('<div class="btn-row" style="padding:0"></div>');
-  const favToggle = el(`<button class="btn btn--ghost">${store.isFavorite(r.id) ? '★ Guardada' : '☆ Guardar'}</button>`);
+  const favLabel = (on) => `${icon(on ? 'star-filled' : 'star', { size: 18 })}${on ? 'Guardada' : 'Guardar'}`;
+  const favToggle = el(`<button class="btn btn--ghost">${favLabel(store.isFavorite(r.id))}</button>`);
   favToggle.addEventListener('click', () => {
-    const now = store.toggleFavorite(r.id);
-    favToggle.textContent = now ? '★ Guardada' : '☆ Guardar';
+    favToggle.innerHTML = favLabel(store.toggleFavorite(r.id));
   });
   favRow.appendChild(favToggle);
   container.appendChild(favRow);
 
   // Temporizador (sticky)
   const clock = el(`<div class="timer__clock">00:00</div>`);
-  const startBtn = el('<button class="btn btn--primary">▶ Iniciar</button>');
-  const resetBtn = el('<button class="btn btn--ghost">↺ Reiniciar</button>');
+  const startBtn = el(`<button class="btn btn--primary">${icon('play', { size: 18 })}Iniciar</button>`);
+  const resetBtn = el(`<button class="btn btn--ghost">${icon('reset', { size: 18 })}Reiniciar</button>`);
   const timerBox = el('<div class="timer"></div>');
   timerBox.appendChild(clock);
   const controls = el('<div class="timer__controls"></div>');
@@ -380,12 +384,12 @@ function renderRecipe(recipeId) {
   }
   container.appendChild(el(`
     <div class="btn-row" style="padding:0;margin-top:8px">
-      <a class="btn btn--primary" href="#/calibracion">🎯 Calibrar por sabor</a>
+      <a class="btn btn--primary" href="#/calibracion">${icon('target', { size: 18 })}Calibrar por sabor</a>
     </div>
   `));
   container.appendChild(el(`
     <div class="btn-row" style="padding:0;margin-top:10px">
-      <a class="btn" href="#/metodo/${r.methodId}">← Más recetas de ${method ? escapeHtml(method.name) : 'este método'}</a>
+      <a class="btn" href="#/metodo/${r.methodId}">${icon('back', { size: 18 })}Más recetas de ${method ? escapeHtml(method.name) : 'este método'}</a>
     </div>
   `));
 
@@ -430,7 +434,7 @@ function setupTimer(recipe, clock, startBtn, resetBtn, stepsUl) {
   function start() {
     if (timer.running) return;
     timer.running = true;
-    startBtn.textContent = '❚❚ Pausar';
+    startBtn.innerHTML = `${icon('pause', { size: 18 })}Pausar`;
     startBtn.onclick = pause;
     lastStepIndex = -2; // fuerza aviso del primer paso
     timer.id = setInterval(tick, 1000);
@@ -440,7 +444,7 @@ function setupTimer(recipe, clock, startBtn, resetBtn, stepsUl) {
     timer.running = false;
     if (timer.id) clearInterval(timer.id);
     timer.id = null;
-    startBtn.textContent = '▶ Reanudar';
+    startBtn.innerHTML = `${icon('play', { size: 18 })}Reanudar`;
     startBtn.onclick = start;
     paint();
   }
@@ -448,7 +452,7 @@ function setupTimer(recipe, clock, startBtn, resetBtn, stepsUl) {
     pause();
     timer.elapsed = 0;
     lastStepIndex = -1;
-    startBtn.textContent = '▶ Iniciar';
+    startBtn.innerHTML = `${icon('play', { size: 18 })}Iniciar`;
     startBtn.onclick = start;
     stepEls.forEach((n) => n.classList.remove('is-current', 'is-done'));
     clock.textContent = fmtTime(0);

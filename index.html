@@ -7,7 +7,7 @@
   <meta name="description" content="Recetario de café mobile-first: elige el método de extracción y descubre cómo prepararlo." />
   <title>Cafetera — Recetario de café</title>
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%231c130d'/%3E%3Cg fill='none' stroke='%23c8884f' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 11h11v3.5a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4z'/%3E%3Cpath d='M16 11.8h2.5a2 2 0 0 1 0 4H16'/%3E%3Cpath d='M8.5 7.5c0-1 1-1.2 1-2.5'/%3E%3Cpath d='M12 7.5c0-1 1-1.2 1-2.5'/%3E%3C/g%3E%3C/svg%3E" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
   <link rel="stylesheet" href="css/styles.css" />
   <script>
@@ -20,7 +20,7 @@
       var msg = (e && (e.message || (e.target && e.target.src) || e.type)) || 'desconocido';
       app.innerHTML =
         '<div style="padding:28px;color:#f3e9df;font:15px/1.5 sans-serif">' +
-        '<p>⚠ No se pudo iniciar la app.</p>' +
+        '<p>No se pudo iniciar la app.</p>' +
         '<p style="color:#b09a88;font-size:13px;word-break:break-word">' + msg + '</p>' +
         '<p style="color:#b09a88;font-size:13px">Si ves esto tras actualizar, borra los datos del sitio ' +
         '(o abre en incógnito) para limpiar el Service Worker antiguo.</p></div>';
@@ -30,9 +30,9 @@
 </head>
 <body>
   <header class="topbar" id="topbar">
-    <button class="icon-btn" id="backBtn" aria-label="Volver" hidden>‹</button>
+    <button class="icon-btn" id="backBtn" aria-label="Volver" hidden></button>
     <h1 class="topbar__title" id="topbarTitle">Recetario de café</h1>
-    <button class="icon-btn" id="favBtn" aria-label="Favoritos">★</button>
+    <button class="icon-btn" id="favBtn" aria-label="Favoritos"></button>
   </header>
 
   <main id="app" class="app"></main>
