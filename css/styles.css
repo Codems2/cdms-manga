@@ -214,6 +214,32 @@ body { padding-top: calc(var(--topbar-h) + var(--safe-top)); }
 .btn-row { display: flex; gap: 10px; padding: 0 18px; }
 .btn-row .btn { flex: 1; }
 
+/* ---------- Calibración por sabor ---------- */
+.quick-ref { padding: 4px 14px; display: flex; flex-direction: column; gap: 8px; }
+.quick-ref__row {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  border-radius: 10px; padding: 10px 12px; font-size: 0.85rem;
+}
+.quick-ref__taste { font-weight: 700; flex: 0 0 38%; }
+.quick-ref__arrow { color: var(--accent); }
+.quick-ref__action { color: var(--text-dim); flex: 1; }
+
+.calib-cards { padding: 6px 14px; display: flex; flex-direction: column; gap: 12px; }
+.calib-card {
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  border-left: 4px solid var(--accent); border-radius: 12px; padding: 14px;
+}
+.calib-card--sour { border-left-color: #e0c04a; }
+.calib-card--bitter { border-left-color: #b5603a; }
+.calib-card--good { border-left-color: var(--good); }
+.calib-card--neutral { border-left-color: var(--accent); }
+.calib-card__title { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
+.calib-card__tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.calib-card__diag { font-size: 0.85rem; color: var(--text-dim); line-height: 1.45; margin-bottom: 10px; }
+.calib-card__fixes { margin: 0; padding-left: 18px; }
+.calib-card__fixes li { font-size: 0.9rem; line-height: 1.5; margin-bottom: 4px; }
+
 /* ---------- Avisos ---------- */
 .notice { text-align: center; padding: 56px 24px; color: var(--text-dim); }
 .notice .btn { margin-top: 16px; }

@@ -1,4 +1,4 @@
-import { METHODS, recipesForMethod, getMethod, getRecipe, getGrindLevel } from './data.js';
+import { METHODS, recipesForMethod, getMethod, getRecipe, getGrindLevel, CALIBRATION } from './data.js';
 import * as store from './store.js';
 
 const appEl = document.getElementById('app');
@@ -47,6 +47,12 @@ function renderHome() {
       <h2>¿Cómo vas a preparar tu café hoy?</h2>
       <p>Elige primero tu método de extracción y te mostraré las recetas para prepararlo paso a paso.</p>
     </section>
+  `));
+
+  container.appendChild(el(`
+    <div class="btn-row" style="margin-top:6px">
+      <a class="btn" href="#/calibracion">🎯 ¿No te supo bien? Calíbralo por sabor</a>
+    </div>
   `));
 
   const grid = el('<div class="methods"></div>');
@@ -192,6 +198,74 @@ function grindScaleEl(level) {
   return box;
 }
 
+/* ---------------- vista: calibración por sabor ---------------- */
+
+function renderCalibration() {
+  backBtn.hidden = false;
+  favBtn.classList.remove('is-active');
+  topbarTitle.textContent = 'Calibrar por sabor';
+
+  const c = CALIBRATION;
+  const container = el('<div class="calib"></div>');
+
+  container.appendChild(el(`
+    <section class="intro">
+      <h2>🎯 Calibración por sabor</h2>
+      <p>${escapeHtml(c.intro)}</p>
+    </section>
+  `));
+  container.appendChild(el(`<div class="notes" style="margin:14px 18px"><strong>${escapeHtml(c.rule)}</strong></div>`));
+
+  // Referencia rápida
+  container.appendChild(el('<div class="section-title">Referencia rápida</div>'));
+  const quick = el('<div class="quick-ref"></div>');
+  for (const q of c.quick) {
+    quick.appendChild(el(`
+      <div class="quick-ref__row">
+        <span class="quick-ref__taste">${escapeHtml(q.taste)}</span>
+        <span class="quick-ref__arrow">→</span>
+        <span class="quick-ref__action">${escapeHtml(q.action)}</span>
+      </div>
+    `));
+  }
+  container.appendChild(quick);
+
+  // Diagnóstico por extracción
+  container.appendChild(el('<div class="section-title">¿Cómo sabe tu café?</div>'));
+  const cards = el('<div class="calib-cards"></div>');
+  for (const item of c.extraction) {
+    cards.appendChild(calibCard(item));
+  }
+  container.appendChild(cards);
+
+  // Concentración / fuerza
+  container.appendChild(el('<div class="section-title">¿Y la intensidad?</div>'));
+  const cards2 = el('<div class="calib-cards"></div>');
+  for (const item of c.strength) {
+    cards2.appendChild(calibCard({ ...item, tone: 'neutral', taste: null }));
+  }
+  container.appendChild(cards2);
+
+  appEl.innerHTML = '';
+  appEl.appendChild(container);
+  window.scrollTo(0, 0);
+}
+
+function calibCard(item) {
+  const tasteHtml = item.taste && item.taste.length
+    ? `<div class="calib-card__tags">${item.taste.map((t) => `<span class="chip">${escapeHtml(t)}</span>`).join('')}</div>`
+    : '';
+  const fixes = item.fixes.map((f) => `<li>${escapeHtml(f)}</li>`).join('');
+  return el(`
+    <div class="calib-card calib-card--${item.tone || 'neutral'}">
+      <div class="calib-card__title">${escapeHtml(item.title)}</div>
+      ${tasteHtml}
+      <div class="calib-card__diag">${escapeHtml(item.diagnosis)}</div>
+      <ul class="calib-card__fixes">${fixes}</ul>
+    </div>
+  `);
+}
+
 /* ---------------- vista: favoritos ---------------- */
 
 function renderFavorites() {
@@ -306,6 +380,11 @@ function renderRecipe(recipeId) {
   }
   container.appendChild(el(`
     <div class="btn-row" style="padding:0;margin-top:8px">
+      <a class="btn btn--primary" href="#/calibracion">🎯 Calibrar por sabor</a>
+    </div>
+  `));
+  container.appendChild(el(`
+    <div class="btn-row" style="padding:0;margin-top:10px">
       <a class="btn" href="#/metodo/${r.methodId}">← Más recetas de ${method ? escapeHtml(method.name) : 'este método'}</a>
     </div>
   `));
@@ -405,6 +484,7 @@ function router() {
   if ((m = hash.match(/^#\/metodo\/(.+)$/))) renderMethod(decodeURIComponent(m[1]));
   else if ((m = hash.match(/^#\/receta\/(.+)$/))) renderRecipe(decodeURIComponent(m[1]));
   else if (hash === '#/favoritos') renderFavorites();
+  else if (hash === '#/calibracion') renderCalibration();
   else renderHome();
 }
 

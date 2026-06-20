@@ -328,6 +328,78 @@ export const RECIPES = [
   },
 ];
 
+// Guía de calibración por sabor: cómo diagnosticar la taza y qué ajustar.
+export const CALIBRATION = {
+  intro:
+    'El sabor te dice si te has pasado o quedado corto al extraer. Usa esta ' +
+    'guía para corregir tu café: identifica el sabor dominante y aplica el ajuste.',
+  rule:
+    'Regla de oro: cambia UNA sola variable cada vez y vuelve a probar. Si ' +
+    'tocas varias a la vez, no sabrás qué funcionó.',
+
+  // Eje de extracción (subextraído ↔ sobreextraído)
+  extraction: [
+    {
+      id: 'under',
+      tone: 'sour',
+      title: 'Sabe ácido o agrio',
+      taste: ['Ácido/agrio, como limón', 'Salado', 'Final corto y "hueco"', 'Poco dulce'],
+      diagnosis: 'Subextraído: el agua extrajo de menos y faltan azúcares y dulzor.',
+      fixes: [
+        'Muele más FINO (lo primero a probar)',
+        'Sube la temperatura del agua 2–3 °C',
+        'Alarga el tiempo de contacto',
+        'Reparte el agua en más vertidos / remueve un poco más',
+      ],
+    },
+    {
+      id: 'over',
+      tone: 'bitter',
+      title: 'Sabe amargo o seco',
+      taste: ['Amargo', 'Seco/astringente (reseca la boca)', 'Áspero', 'Quemado'],
+      diagnosis: 'Sobreextraído: el agua extrajo de más y arrastró compuestos amargos.',
+      fixes: [
+        'Muele más GRUESO (lo primero a probar)',
+        'Baja la temperatura del agua 2–3 °C',
+        'Acorta el tiempo de extracción',
+        'Agita/remueve menos',
+      ],
+    },
+    {
+      id: 'balanced',
+      tone: 'good',
+      title: 'Equilibrado y dulce',
+      taste: ['Dulce', 'Acidez agradable', 'Final largo y limpio'],
+      diagnosis: '¡Lo lograste! Anota la molienda, dosis y tiempo para repetirlo.',
+      fixes: ['Guarda esta configuración', 'Ajusta solo al cambiar de café o de tueste'],
+    },
+  ],
+
+  // Eje de concentración (fuerza de la taza)
+  strength: [
+    {
+      id: 'weak',
+      title: 'Aguado / débil / sin cuerpo',
+      diagnosis: 'Concentración baja: poco café para tanta agua.',
+      fixes: ['Usa más café (ratio más fuerte, p. ej. 1:15 en vez de 1:17)', 'O reduce el agua'],
+    },
+    {
+      id: 'strong',
+      title: 'Demasiado intenso / cargado',
+      diagnosis: 'Concentración alta: demasiado café para el agua.',
+      fixes: ['Usa menos café (ratio más suave, p. ej. 1:17)', 'O añade un poco de agua caliente al final'],
+    },
+  ],
+
+  // Referencia rápida sabor → acción
+  quick: [
+    { taste: 'Ácido / agrio', action: 'Muele más fino · sube Tª · más tiempo' },
+    { taste: 'Amargo / seco', action: 'Muele más grueso · baja Tª · menos tiempo' },
+    { taste: 'Soso / aguado', action: 'Más café (ratio más fuerte)' },
+    { taste: 'Muy cargado', action: 'Más agua o menos café' },
+  ],
+};
+
 export function recipesForMethod(methodId) {
   return RECIPES.filter((r) => r.methodId === methodId);
 }
