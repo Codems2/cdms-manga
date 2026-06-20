@@ -1,8 +1,8 @@
-// Service Worker: cachea el "app shell" para arranque rápido y uso offline.
-// La app es totalmente estática (sin red en tiempo de ejecución), así que
-// funciona offline una vez instalada.
+// Service Worker: estrategia NETWORK-FIRST para el app shell.
+// Así, estando online, siempre se ve la última versión desplegada (evita
+// quedarse atrapado en caché vieja). Offline, cae a la copia cacheada.
 
-const CACHE = 'cafe-shell-v1';
+const CACHE = 'cafe-shell-v2';
 const SHELL = [
   './',
   './index.html',
@@ -16,14 +16,16 @@ const SHELL = [
 ];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  e.waitUntil(
+    caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate', (e) => {
   e.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
-    ).then(() => self.clients.claim())
+    caches.keys()
+      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then(() => self.clients.claim())
   );
 });
 
@@ -33,14 +35,17 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  // Cache-first con actualización en segundo plano.
   e.respondWith(
-    caches.match(request).then((cached) => {
-      const fetched = fetch(request).then((res) => {
-        if (res.ok) caches.open(CACHE).then((c) => c.put(request, res.clone()));
+    fetch(request)
+      .then((res) => {
+        if (res && res.ok) {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(request, copy));
+        }
         return res;
-      }).catch(() => cached);
-      return cached || fetched;
-    })
+      })
+      .catch(() =>
+        caches.match(request).then((cached) => cached || caches.match('./index.html'))
+      )
   );
 });
