@@ -133,8 +133,41 @@ function recipeListEl(recipes) {
   return ul;
 }
 
-// Bloque visual de la escala de molienda: 6 puntos de tamaño creciente con el
-// nivel de la receta resaltado, más la referencia cotidiana y las micras.
+// PRNG con semilla para que la muestra de molienda sea estable por nivel.
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// Muestra "realista" de café molido: partículas dispersas cuyo tamaño y
+// densidad corresponden al grosor (fino = muchas y diminutas; grueso = pocas
+// y grandes). Se dibuja como SVG inline.
+function grindSwatchSVG(level) {
+  const cfg = {
+    1: { r: 1.2, n: 460 }, 2: { r: 1.8, n: 290 }, 3: { r: 2.7, n: 180 },
+    4: { r: 3.6, n: 120 }, 5: { r: 4.7, n: 80 }, 6: { r: 6.2, n: 54 },
+  }[level] || { r: 3, n: 150 };
+  const W = 300, H = 84;
+  const rnd = mulberry32(level * 9973 + 7);
+  const colors = ['#6b4a32', '#7a5638', '#5a3b27', '#8a6747', '#4e3320', '#9a784f'];
+  let parts = '';
+  for (let i = 0; i < cfg.n; i++) {
+    const x = rnd() * W, y = rnd() * H;
+    const base = cfg.r * (0.6 + rnd() * 0.8);
+    const rx = (base * (0.8 + rnd() * 0.5)).toFixed(1);
+    const ry = (base * (0.8 + rnd() * 0.5)).toFixed(1);
+    const rot = (rnd() * 180) | 0;
+    const c = colors[(rnd() * colors.length) | 0];
+    parts += `<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="${rx}" ry="${ry}" fill="${c}" transform="rotate(${rot} ${x.toFixed(1)} ${y.toFixed(1)})"/>`;
+  }
+  return `<svg class="grind__swatch" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="${W}" height="${H}" fill="#241710"/>${parts}</svg>`;
+}
+
+// Bloque visual de molienda: muestra realista + barra de posición en la escala.
 function grindScaleEl(level) {
   const g = getGrindLevel(level);
   const box = el(`
@@ -143,6 +176,7 @@ function grindScaleEl(level) {
         <span class="grind__name">⚙ Molienda: ${escapeHtml(g.name)}</span>
         <span class="grind__ref">≈ ${escapeHtml(g.ref)} · ${escapeHtml(g.microns)}</span>
       </div>
+      ${grindSwatchSVG(g.level)}
       <div class="grind__scale"></div>
       <div class="grind__ends"><span>Más fino</span><span>Más grueso</span></div>
     </div>
