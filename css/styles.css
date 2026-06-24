@@ -216,9 +216,63 @@ body { padding-top: calc(var(--topbar-h) + var(--safe-top)); }
 .btn--primary { background: var(--accent); border-color: var(--accent); color: #1c130d; }
 .btn--primary:active { background: var(--accent-hover); }
 .btn--ghost { background: transparent; }
+.btn--danger { color: #e07a6a; border-color: #5a3330; }
+.btn--danger:active { background: #2a1715; }
 .btn:disabled { opacity: 0.45; }
 .btn-row { display: flex; gap: 10px; padding: 0 18px; }
 .btn-row .btn { flex: 1; }
+
+/* ---------- Insignia "Mía" + café usado ---------- */
+.recipe-card__mine {
+  font-size: 0.66rem; font-weight: 700; color: var(--accent);
+  border: 1px solid var(--accent); border-radius: 20px; padding: 2px 8px; flex-shrink: 0;
+}
+.bean-box {
+  display: flex; align-items: flex-start; gap: 10px; color: var(--accent);
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent); border-radius: 10px;
+  padding: 12px 14px; margin: 0 0 4px;
+}
+.bean-box__label { font-size: 0.68rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .03em; }
+.bean-box__val { color: var(--text); font-weight: 600; font-size: 0.95rem; margin-top: 2px; }
+
+/* ---------- Formulario ---------- */
+.form { padding: 16px 18px calc(40px + var(--safe-bottom)); }
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field > span { font-size: 0.82rem; color: var(--text-dim); font-weight: 600; }
+.field-row { display: flex; gap: 12px; }
+.field-row .field { flex: 1; }
+.form input, .form select, .form textarea {
+  background: var(--bg-elevated); color: var(--text);
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 11px 12px; font-size: 0.95rem; font-family: inherit; width: 100%;
+}
+.form input:focus, .form select:focus, .form textarea:focus {
+  outline: none; border-color: var(--accent);
+}
+.form textarea { resize: vertical; }
+.form .section-title { padding: 4px 0; }
+
+.steps-editor { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+.step-row {
+  display: flex; gap: 8px; align-items: flex-start;
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  border-radius: 10px; padding: 10px;
+}
+.step-row__body { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.step-time {
+  width: 64px; flex-shrink: 0; text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.step-del {
+  background: none; border: none; color: #e07a6a; cursor: pointer;
+  padding: 6px; display: flex; align-items: center; flex-shrink: 0;
+}
+.form-error {
+  background: #2a1715; border: 1px solid #5a3330; color: #e07a6a;
+  border-radius: 10px; padding: 11px 14px; font-size: 0.85rem; margin-top: 8px;
+}
+.form-error[hidden] { display: none; }
 
 /* ---------- Calibración por sabor ---------- */
 .quick-ref { padding: 4px 14px; display: flex; flex-direction: column; gap: 8px; }

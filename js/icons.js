@@ -16,6 +16,11 @@ const PATHS = {
   bean: '<ellipse cx="12" cy="12" rx="6" ry="8.5" transform="rotate(40 12 12)"/><path d="M8.8 8.8c2.2 2.2 4.2 4.2 6.4 6.4"/>',
   arrow: '<line x1="4" y1="12" x2="18" y2="12"/><polyline points="12 6 18 12 12 18"/>',
   thermo: '<path d="M14 14.5V5.5a2 2 0 0 0-4 0v9a3.5 3.5 0 1 0 4 0z"/>',
+  plus: '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+  trash: '<polyline points="3 6 21 6"/><path d="M19 6l-1 13.5A2 2 0 0 1 16 21H8a2 2 0 0 1-2-1.5L5 6"/><path d="M10 10.5v6"/><path d="M14 10.5v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>',
+  edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+  check: '<polyline points="4 12 10 18 20 6"/>',
+  beanbag: '<path d="M6 8h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/>',
 
   // --- métodos de extracción ---
   v60: '<path d="M5 6.5h14l-5.5 8h-3z"/><line x1="12" y1="14.5" x2="12" y2="17"/><line x1="8.5" y1="18.5" x2="15.5" y2="18.5"/>',

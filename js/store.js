@@ -30,3 +30,36 @@ export function getLastMethod() {
 export function setLastMethod(id) {
   localStorage.setItem(LAST_KEY, id);
 }
+
+/* ---------- Recetas propias del usuario ---------- */
+
+const USER_KEY = 'cafe.userRecipes';
+
+export function getUserRecipes() {
+  try {
+    return JSON.parse(localStorage.getItem(USER_KEY) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+export function getUserRecipe(id) {
+  return getUserRecipes().find((r) => r.id === id) || null;
+}
+
+export function saveUserRecipe(recipe) {
+  const list = getUserRecipes();
+  const idx = list.findIndex((r) => r.id === recipe.id);
+  if (idx >= 0) list[idx] = recipe;
+  else list.push(recipe);
+  localStorage.setItem(USER_KEY, JSON.stringify(list));
+  return recipe;
+}
+
+export function deleteUserRecipe(id) {
+  localStorage.setItem(USER_KEY, JSON.stringify(getUserRecipes().filter((r) => r.id !== id)));
+}
+
+export function newRecipeId() {
+  return 'user-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7);
+}

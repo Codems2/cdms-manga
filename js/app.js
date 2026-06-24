@@ -1,4 +1,4 @@
-import { METHODS, recipesForMethod, getMethod, getRecipe, getGrindLevel, CALIBRATION } from './data.js';
+import { METHODS, getMethod, getRecipe, getGrindLevel, GRIND_LEVELS, CALIBRATION } from './data.js';
 import * as store from './store.js';
 import { icon } from './icons.js';
 
@@ -38,6 +38,28 @@ function ratioText(r) {
   return total >= 3600 ? `~${Math.round(total / 3600)} h` : fmtTime(total);
 }
 
+/* ---------- recetas: integradas + propias del usuario ---------- */
+
+function allRecipes() {
+  return [...RECIPES, ...store.getUserRecipes()];
+}
+function recipesForMethodAll(methodId) {
+  return allRecipes().filter((r) => r.methodId === methodId);
+}
+function getRecipeAny(id) {
+  return getRecipe(id) || store.getUserRecipe(id);
+}
+
+function parseTimeStr(str) {
+  if (!str) return 0;
+  str = String(str).trim();
+  if (str.includes(':')) {
+    const [m, s2] = str.split(':');
+    return (parseInt(m, 10) || 0) * 60 + (parseInt(s2, 10) || 0);
+  }
+  return parseInt(str, 10) || 0;
+}
+
 /* ---------------- vista: inicio (métodos) ---------------- */
 
 function renderHome() {
@@ -55,13 +77,18 @@ function renderHome() {
 
   container.appendChild(el(`
     <div class="btn-row" style="margin-top:6px">
+      <a class="btn btn--primary" href="#/nueva">${icon('plus', { size: 18 })}Añadir mi receta</a>
+    </div>
+  `));
+  container.appendChild(el(`
+    <div class="btn-row" style="margin-top:10px">
       <a class="btn" href="#/calibracion">${icon('target', { size: 18 })}¿No te supo bien? Calíbralo por sabor</a>
     </div>
   `));
 
   const grid = el('<div class="methods"></div>');
   for (const m of METHODS) {
-    const count = recipesForMethod(m.id).length;
+    const count = recipesForMethodAll(m.id).length;
     const card = el(`
       <a class="method-card" href="#/metodo/${m.id}">
         <div class="method-card__icon">${icon(m.icon, { size: 34 })}</div>
@@ -95,7 +122,7 @@ function renderMethod(methodId) {
   favBtn.classList.remove('is-active');
   topbarTitle.textContent = method.name;
 
-  const recipes = recipesForMethod(methodId);
+  const recipes = recipesForMethodAll(methodId);
   const container = el('<div></div>');
 
   container.appendChild(el(`
@@ -105,6 +132,11 @@ function renderMethod(methodId) {
       <h2>${escapeHtml(method.name)}</h2>
       <p>${escapeHtml(method.description)}</p>
     </section>
+  `));
+  container.appendChild(el(`
+    <div class="btn-row">
+      <a class="btn btn--primary" href="#/nueva/${method.id}">${icon('plus', { size: 18 })}Añadir receta de ${escapeHtml(method.name)}</a>
+    </div>
   `));
   container.appendChild(el(`<div class="section-title">Recetas (${recipes.length})</div>`));
   container.appendChild(recipeListEl(recipes));
@@ -126,9 +158,10 @@ function recipeListEl(recipes) {
       <a class="recipe-card" href="#/receta/${r.id}">
         <div class="recipe-card__top">
           <div class="recipe-card__title">${escapeHtml(r.title)}</div>
+          ${r.custom ? '<span class="recipe-card__mine">Mía</span>' : ''}
           ${fav ? `<span class="recipe-card__star">${icon('star-filled', { size: 16 })}</span>` : ''}
         </div>
-        <div class="recipe-card__source">${escapeHtml(r.source)}</div>
+        <div class="recipe-card__source">${escapeHtml(r.source || 'Mi receta')}</div>
         <div class="recipe-card__chips">
           <span class="chip">${icon('bean', { size: 13, cls: 'chip-ico' })}<strong>${r.coffee ? r.coffee + ' g' : '—'}</strong></span>
           <span class="chip">${icon('droplet', { size: 13, cls: 'chip-ico' })}<strong>${r.water ? r.water + (r.methodId === 'espresso' ? ' g' : ' ml') : '—'}</strong></span>
@@ -278,7 +311,7 @@ function renderFavorites() {
   topbarTitle.textContent = 'Favoritos';
 
   const favs = store.getFavorites();
-  const recipes = [...favs].map(getRecipe).filter(Boolean);
+  const recipes = [...favs].map(getRecipeAny).filter(Boolean);
 
   const container = el('<div></div>');
   container.appendChild(el('<div class="section-title">Tus recetas guardadas</div>'));
@@ -304,7 +337,7 @@ function stopTimer() {
 
 function renderRecipe(recipeId) {
   stopTimer();
-  const r = getRecipe(recipeId);
+  const r = getRecipeAny(recipeId);
   if (!r) return renderHome();
   const method = getMethod(r.methodId);
 
@@ -316,10 +349,18 @@ function renderRecipe(recipeId) {
   container.appendChild(el(`
     <div>
       <h2 class="recipe__title">${escapeHtml(r.title)}</h2>
-      <p class="recipe__source">${escapeHtml(r.source)} · ${method ? escapeHtml(method.name) : ''}</p>
-      <p class="recipe__summary">${escapeHtml(r.summary)}</p>
+      <p class="recipe__source">${escapeHtml(r.source || 'Mi receta')} · ${method ? escapeHtml(method.name) : ''}</p>
+      ${r.summary ? `<p class="recipe__summary">${escapeHtml(r.summary)}</p>` : ''}
     </div>
   `));
+
+  if (r.bean) {
+    container.appendChild(el(`
+      <div class="bean-box">${icon('beanbag', { size: 18, cls: 'inline-ico' })}
+        <div><span class="bean-box__label">Café usado</span><div class="bean-box__val">${escapeHtml(r.bean)}</div></div>
+      </div>
+    `));
+  }
 
   const waterUnit = r.methodId === 'espresso' ? 'g' : 'ml';
   const coffeeStr = r.coffee ? `${r.coffee} g` : '—';
@@ -328,15 +369,15 @@ function renderRecipe(recipeId) {
     <div class="specs">
       <div class="spec"><div class="spec__val">${coffeeStr}</div><div class="spec__label">Café</div></div>
       <div class="spec"><div class="spec__val">${waterStr}</div><div class="spec__label">Agua</div></div>
-      <div class="spec"><div class="spec__val">${escapeHtml(r.ratio)}</div><div class="spec__label">Ratio</div></div>
+      <div class="spec"><div class="spec__val">${escapeHtml(r.ratio || '—')}</div><div class="spec__label">Ratio</div></div>
     </div>
   `));
   container.appendChild(el(`
     <div class="detail-rows">
-      <div class="detail-row"><span>Molienda</span><span>${escapeHtml(r.grind)}</span></div>
-      <div class="detail-row"><span>Temperatura</span><span>${r.temp} °C</span></div>
+      <div class="detail-row"><span>Molienda</span><span>${escapeHtml(r.grind || getGrindLevel(r.grindLevel).name)}</span></div>
+      <div class="detail-row"><span>Temperatura</span><span>${r.temp ? r.temp + ' °C' : '—'}</span></div>
       <div class="detail-row"><span>Tiempo total</span><span>${ratioText(r)}</span></div>
-      <div class="detail-row"><span>Dificultad</span><span>${escapeHtml(r.difficulty)}</span></div>
+      <div class="detail-row"><span>Dificultad</span><span>${escapeHtml(r.difficulty || '—')}</span></div>
     </div>
   `));
 
@@ -353,37 +394,57 @@ function renderRecipe(recipeId) {
   favRow.appendChild(favToggle);
   container.appendChild(favRow);
 
-  // Temporizador (sticky)
-  const clock = el(`<div class="timer__clock">00:00</div>`);
-  const startBtn = el(`<button class="btn btn--primary">${icon('play', { size: 18 })}Iniciar</button>`);
-  const resetBtn = el(`<button class="btn btn--ghost">${icon('reset', { size: 18 })}Reiniciar</button>`);
-  const timerBox = el('<div class="timer"></div>');
-  timerBox.appendChild(clock);
-  const controls = el('<div class="timer__controls"></div>');
-  controls.appendChild(startBtn);
-  controls.appendChild(resetBtn);
-  timerBox.appendChild(controls);
-  container.appendChild(timerBox);
+  const hasSteps = Array.isArray(r.steps) && r.steps.length > 0;
+  let clock, startBtn, resetBtn, stepsUl;
 
-  // Pasos
-  const stepsUl = el('<ul class="steps"></ul>');
-  r.steps.forEach((s, i) => {
-    const li = el(`
-      <li class="step" data-at="${s.at}" data-index="${i}">
-        <div class="step__time">${fmtTime(s.at)}</div>
-        <div class="step__body">
-          <div class="step__title">${escapeHtml(s.title)}</div>
-          ${s.detail ? `<div class="step__detail">${escapeHtml(s.detail)}</div>` : ''}
-        </div>
-      </li>
-    `);
-    stepsUl.appendChild(li);
-  });
-  container.appendChild(stepsUl);
+  if (hasSteps) {
+    // Temporizador (sticky)
+    clock = el(`<div class="timer__clock">00:00</div>`);
+    startBtn = el(`<button class="btn btn--primary">${icon('play', { size: 18 })}Iniciar</button>`);
+    resetBtn = el(`<button class="btn btn--ghost">${icon('reset', { size: 18 })}Reiniciar</button>`);
+    const timerBox = el('<div class="timer"></div>');
+    timerBox.appendChild(clock);
+    const controls = el('<div class="timer__controls"></div>');
+    controls.appendChild(startBtn);
+    controls.appendChild(resetBtn);
+    timerBox.appendChild(controls);
+    container.appendChild(timerBox);
+
+    stepsUl = el('<ul class="steps"></ul>');
+    r.steps.forEach((s, i) => {
+      const li = el(`
+        <li class="step" data-at="${s.at}" data-index="${i}">
+          <div class="step__time">${fmtTime(s.at)}</div>
+          <div class="step__body">
+            <div class="step__title">${escapeHtml(s.title)}</div>
+            ${s.detail ? `<div class="step__detail">${escapeHtml(s.detail)}</div>` : ''}
+          </div>
+        </li>
+      `);
+      stepsUl.appendChild(li);
+    });
+    container.appendChild(stepsUl);
+  }
 
   if (r.notes) {
     container.appendChild(el(`<div class="notes"><strong>Tip:</strong> ${escapeHtml(r.notes)}</div>`));
   }
+
+  // Editar / borrar (solo recetas propias)
+  if (r.custom) {
+    const editRow = el('<div class="btn-row" style="padding:0;margin-top:8px"></div>');
+    editRow.appendChild(el(`<a class="btn" href="#/editar/${r.id}">${icon('edit', { size: 18 })}Editar</a>`));
+    const delBtn = el(`<button class="btn btn--danger">${icon('trash', { size: 18 })}Borrar</button>`);
+    delBtn.addEventListener('click', () => {
+      if (confirm('¿Borrar esta receta? No se puede deshacer.')) {
+        store.deleteUserRecipe(r.id);
+        location.hash = `#/metodo/${r.methodId}`;
+      }
+    });
+    editRow.appendChild(delBtn);
+    container.appendChild(editRow);
+  }
+
   container.appendChild(el(`
     <div class="btn-row" style="padding:0;margin-top:8px">
       <a class="btn btn--primary" href="#/calibracion">${icon('target', { size: 18 })}Calibrar por sabor</a>
@@ -399,7 +460,7 @@ function renderRecipe(recipeId) {
   appEl.appendChild(container);
   window.scrollTo(0, 0);
 
-  setupTimer(r, clock, startBtn, resetBtn, stepsUl);
+  if (hasSteps) setupTimer(r, clock, startBtn, resetBtn, stepsUl);
 }
 
 function setupTimer(recipe, clock, startBtn, resetBtn, stepsUl) {
@@ -481,13 +542,166 @@ function cue() {
   } catch { /* sin audio disponible */ }
 }
 
+/* ---------------- vista: formulario de receta propia ---------------- */
+
+function renderForm({ methodId, editId } = {}) {
+  stopTimer();
+  backBtn.hidden = false;
+  favBtn.classList.remove('is-active');
+
+  const editing = editId ? store.getUserRecipe(editId) : null;
+  topbarTitle.textContent = editing ? 'Editar receta' : 'Nueva receta';
+
+  const preMethod = (editing && editing.methodId) || methodId || METHODS[0].id;
+
+  const methodOptions = METHODS.map((m) =>
+    `<option value="${m.id}" ${m.id === preMethod ? 'selected' : ''}>${escapeHtml(m.name)}</option>`).join('');
+  const grindOptions = GRIND_LEVELS.map((g) =>
+    `<option value="${g.level}" ${editing && editing.grindLevel === g.level ? 'selected' : (!editing && g.level === 3 ? 'selected' : '')}>${escapeHtml(g.name)}</option>`).join('');
+  const diffOptions = ['Fácil', 'Media', 'Alta'].map((d) =>
+    `<option value="${d}" ${editing && editing.difficulty === d ? 'selected' : ''}>${d}</option>`).join('');
+
+  const v = (x) => (x == null ? '' : escapeHtml(String(x)));
+  const e = editing || {};
+
+  const form = el(`
+    <form class="form" novalidate>
+      <label class="field"><span>Método</span>
+        <select name="method">${methodOptions}</select></label>
+
+      <label class="field"><span>Nombre de la receta *</span>
+        <input name="title" required value="${v(e.title)}" placeholder="Mi V60 de los domingos" /></label>
+
+      <label class="field"><span>Café usado (origen / tostador / variedad)</span>
+        <input name="bean" value="${v(e.bean)}" placeholder="Etiopía Yirgacheffe — Tostador X, lavado" /></label>
+
+      <div class="field-row">
+        <label class="field"><span>Café (g)</span>
+          <input name="coffee" type="number" inputmode="decimal" min="0" value="${v(e.coffee)}" /></label>
+        <label class="field"><span>Agua (g/ml)</span>
+          <input name="water" type="number" inputmode="decimal" min="0" value="${v(e.water)}" /></label>
+      </div>
+
+      <div class="field-row">
+        <label class="field"><span>Ratio</span>
+          <input name="ratio" value="${v(e.ratio)}" placeholder="auto (1:16,6)" /></label>
+        <label class="field"><span>Temperatura (°C)</span>
+          <input name="temp" type="number" inputmode="decimal" min="0" max="100" value="${v(e.temp)}" /></label>
+      </div>
+
+      <div class="field-row">
+        <label class="field"><span>Molienda</span>
+          <select name="grindLevel">${grindOptions}</select></label>
+        <label class="field"><span>Dificultad</span>
+          <select name="difficulty">${diffOptions}</select></label>
+      </div>
+
+      <label class="field"><span>Descripción</span>
+        <textarea name="summary" rows="2" placeholder="Una frase sobre esta receta…">${v(e.summary)}</textarea></label>
+
+      <div class="section-title" style="padding-left:0">Pasos (con su tiempo)</div>
+      <div class="steps-editor" id="stepList"></div>
+      <button type="button" class="btn" id="addStep">${icon('plus', { size: 18 })}Añadir paso</button>
+
+      <label class="field" style="margin-top:14px"><span>Notas / tip</span>
+        <textarea name="notes" rows="2" placeholder="Trucos, ajustes, recordatorios…">${v(e.notes)}</textarea></label>
+
+      <div class="form-error" id="formError" hidden></div>
+
+      <div class="btn-row" style="padding:0;margin-top:16px">
+        <a class="btn" href="${editing ? '#/receta/' + editing.id : '#/metodo/' + preMethod}">Cancelar</a>
+        <button type="submit" class="btn btn--primary">${icon('check', { size: 18 })}Guardar</button>
+      </div>
+    </form>
+  `);
+
+  const stepList = form.querySelector('#stepList');
+
+  function addStepRow(step = {}) {
+    const row = el(`
+      <div class="step-row">
+        <input class="step-time" placeholder="0:00" value="${step.at != null ? fmtTime(step.at) : ''}" />
+        <div class="step-row__body">
+          <input class="step-title" placeholder="Título del paso" value="${v(step.title)}" />
+          <input class="step-detail" placeholder="Detalle (opcional)" value="${v(step.detail)}" />
+        </div>
+        <button type="button" class="step-del" aria-label="Quitar paso">${icon('trash', { size: 18 })}</button>
+      </div>
+    `);
+    row.querySelector('.step-del').addEventListener('click', () => row.remove());
+    stepList.appendChild(row);
+  }
+
+  if (editing && Array.isArray(editing.steps) && editing.steps.length) {
+    editing.steps.forEach(addStepRow);
+  } else {
+    addStepRow({ at: 0 });
+  }
+  form.querySelector('#addStep').addEventListener('click', () => addStepRow());
+
+  form.addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const get = (name) => form.querySelector(`[name="${name}"]`).value.trim();
+    const title = get('title');
+    const errBox = form.querySelector('#formError');
+    if (!title) {
+      errBox.textContent = 'Ponle al menos un nombre a la receta.';
+      errBox.hidden = false;
+      return;
+    }
+
+    const steps = [...stepList.querySelectorAll('.step-row')].map((row) => ({
+      at: parseTimeStr(row.querySelector('.step-time').value),
+      title: row.querySelector('.step-title').value.trim(),
+      detail: row.querySelector('.step-detail').value.trim(),
+    })).filter((st) => st.title || st.detail);
+    steps.sort((a, b) => a.at - b.at);
+
+    const coffee = parseFloat(get('coffee')) || 0;
+    const water = parseFloat(get('water')) || 0;
+    let ratio = get('ratio');
+    if (!ratio) {
+      ratio = coffee && water ? '1:' + (water / coffee).toFixed(1).replace('.', ',') : '—';
+    }
+    const grindLevel = parseInt(get('grindLevel'), 10) || 3;
+    const totalTime = steps.length ? steps[steps.length - 1].at + 30 : 0;
+
+    const recipe = {
+      id: editing ? editing.id : store.newRecipeId(),
+      custom: true,
+      methodId: get('method'),
+      title,
+      bean: get('bean'),
+      source: get('bean') || 'Mi receta',
+      coffee, water, ratio,
+      grind: getGrindLevel(grindLevel).name,
+      grindLevel,
+      temp: parseFloat(get('temp')) || 0,
+      totalTime,
+      difficulty: get('difficulty') || 'Media',
+      summary: get('summary'),
+      steps,
+      notes: get('notes'),
+    };
+    store.saveUserRecipe(recipe);
+    location.hash = `#/receta/${recipe.id}`;
+  });
+
+  appEl.innerHTML = '';
+  appEl.appendChild(form);
+  window.scrollTo(0, 0);
+}
+
 /* ---------------- router ---------------- */
 
 function router() {
   stopTimer();
   const hash = location.hash || '#/';
   let m;
-  if ((m = hash.match(/^#\/metodo\/(.+)$/))) renderMethod(decodeURIComponent(m[1]));
+  if (hash === '#/nueva') renderForm({});
+  else if ((m = hash.match(/^#\/nueva\/(.+)$/))) renderForm({ methodId: decodeURIComponent(m[1]) });
+  else if ((m = hash.match(/^#\/editar\/(.+)$/))) renderForm({ editId: decodeURIComponent(m[1]) });
+  else if ((m = hash.match(/^#\/metodo\/(.+)$/))) renderMethod(decodeURIComponent(m[1]));
   else if ((m = hash.match(/^#\/receta\/(.+)$/))) renderRecipe(decodeURIComponent(m[1]));
   else if (hash === '#/favoritos') renderFavorites();
   else if (hash === '#/calibracion') renderCalibration();
