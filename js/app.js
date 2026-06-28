@@ -1,4 +1,4 @@
-import { METHODS, getMethod, getRecipe, getGrindLevel, GRIND_LEVELS, CALIBRATION } from './data.js';
+import { METHODS, RECIPES, getMethod, getRecipe, getGrindLevel, GRIND_LEVELS, CALIBRATION } from './data.js';
 import * as store from './store.js';
 import { icon } from './icons.js';
 
